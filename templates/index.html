@@ -19,26 +19,30 @@
                 const streak = habit[3];
                 // const lastUpdatedDate = new Date(habit[4]).toLocaleDateString();
                 const lastUpdatedDate = habit[4];
-                getButtonStatus(name, periodicity, createdDate, streak, lastUpdatedDate)
+                console.log(name, periodicity, createdDate, streak, lastUpdatedDate);
+                getButtonStatus(name, periodicity, createdDate, streak, lastUpdatedDate);
+                fetchStreaks();
             });
         }
 
         async function getButtonStatus(name, periodicity, createdDate, streak, last_updated_at) {
             // periodicity[0] is used to get the first character of the periodicity string (D, W, M)
+            const today = new Date().toISOString().slice(0, 10);
             const response = await fetch(`/habits/check/?periodicity=${periodicity[0]}&last_updated_at=${last_updated_at}`);
             const status = await response.json();
             let buttonHTML = '';
-            if (status === 'Same') {
-                if (periodicity === 'D') {
-                    buttonHTML = `<button class="disabled" disabled>Already Marked as Completed Today</button>`;
-                } else if (periodicity === 'W') {
-                    buttonHTML = `<button class="disabled" disabled>Already Marked as Completed This Week</button>`;
+            if (createdDate === today) {
+                if (streak === 0) {
+                    buttonHTML = `<button onclick="markHabitAsCompleted('${name}')">Mark as Completed</button>`;
                 } else {
-                    buttonHTML = `<button class="disabled" disabled>Already Marked as Completed This Month</button>`;
+                    buttonHTML = getDisabledButton(periodicity);
                 }
+            } else if (status === 'Same') {
+                buttonHTML = getDisabledButton(periodicity);
             } else {
                 buttonHTML = `<button onclick="markHabitAsCompleted('${name}')">Mark as Completed</button>`;
             }
+        
             const tableBody = document.getElementById('habits-table-body');
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -53,6 +57,16 @@
                 </td>
             `;
             tableBody.appendChild(row);
+        }
+
+        function getDisabledButton(periodicity) {
+            if (periodicity[0] === 'D') {
+                return `<button class="disabled" disabled>Already Done Today</button>`;
+            } else if (periodicity[0] === 'W') {
+                return `<button class="disabled" disabled>Already Done This Week</button>`;
+            } else {
+                return `<button class="disabled" disabled>Already Done This Month</button>`;
+            }
         }
 
         async function createHabit() {
@@ -137,7 +151,6 @@
         window.onload = () => {
             fetchHabits();
             fetchStreaks();
-            // setInterval(fetchHabits, 10000); // Refresh habits every 10 seconds
         };
     </script>
 </head>
