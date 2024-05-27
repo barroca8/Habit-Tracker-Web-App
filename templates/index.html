@@ -6,11 +6,17 @@
     <title>Habit Tracker</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     <script>
-        async function fetchHabits() {
+        async function fetchHabits(periodicity = '') {
             const response = await fetch('/habits');
-            const habits = await response.json();
+            let habits = await response.json();
+
+            if (periodicity !== '') {
+                habits = habits.filter(habit => habit[1][0] === periodicity);
+            }
+
             const tableBody = document.getElementById('habits-table-body');
             tableBody.innerHTML = '';
+
             habits.forEach(habit => {
                 const name = habit[0];
                 const periodicity = habit[1];
@@ -20,6 +26,11 @@
                 getButtonStatus(name, periodicity, createdDate, streak, lastUpdatedDate);
                 fetchStreaks();
             });
+        }
+
+        async function filterHabits() {
+            const periodicity = document.getElementById('filter-periodicity').value;
+            fetchHabits(periodicity);
         }
 
         async function getButtonStatus(name, periodicity, createdDate, streak, last_updated_at) {
@@ -91,7 +102,8 @@
         async function markHabitAsCompleted(name) {
             const response = await fetch(`/habits/${name}`, { method: 'PUT' });
             if (response.ok) {
-                fetchHabits();
+                const periodicity = document.getElementById('filter-periodicity').value;
+                fetchHabits(periodicity);
             }
         }
 
@@ -109,32 +121,31 @@
             document.getElementById('monthly-streak').textContent = monthlyStreak.length > 0 ? `Longest monthly streak: ${monthlyStreak[0][0]} with ${monthlyStreak[0][1]} months` : 'No monthly streaks found';
         }
 
-        async function filterHabits() {
-            const periodicity = document.getElementById('filter-periodicity').value;
-            if (periodicity === '') {
-                fetchHabits();
-                return;
-            }
-            const response = await fetch('/habits');
-            const habits = await response.json();
-            const filteredHabits = habits.filter(habit => habit[1] === periodicity);
-            const tableBody = document.getElementById('habits-table-body');
-            tableBody.innerHTML = '';
-            filteredHabits.forEach(habit => {
-                const createdDate = new Date(habit[2]).toLocaleDateString();
-                const lastUpdatedDate = new Date(habit[4]).toLocaleDateString();
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${habit[0]}</td>
-                    <td>${habit[1]}</td>
-                    <td>${createdDate}</td>
-                    <td>${habit[3]}</td>
-                    <td>${lastUpdatedDate}</td>
-                    <td><button onclick="deleteHabit('${habit[0]}')">Delete</button></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
+        // async function filterHabits() {
+        //     const periodicity = document.getElementById('filter-periodicity').value;
+        //     if (periodicity === '') {
+        //         fetchHabits();
+        //         return;
+        //     }
+        //     const response = await fetch('/habits');
+        //     const habits = await response.json();
+        //     const filteredHabits = habits.filter(habit => habit[1][0] === periodicity);
+        //     console.log(filteredHabits)
+        //     const tableBody = document.getElementById('habits-table-body');
+        //     tableBody.innerHTML = '';
+        //     filteredHabits.forEach(habit => {
+        //         const row = document.createElement('tr');
+        //         row.innerHTML = `
+        //             <td>${habit[0]}</td>
+        //             <td>${habit[1]}</td>
+        //             <td>${habit[2]}</td>
+        //             <td>${habit[3]}</td>
+        //             <td>${habit[4]}</td>
+        //             <td><button onclick="deleteHabit('${habit[0]}')">Delete</button></td>
+        //         `;
+        //         tableBody.appendChild(row);
+        //     });
+        // }
 
         async function searchLongestStreak() {
             const name = document.getElementById('search-name').value;
