@@ -55,7 +55,7 @@ class Habit:
     def get_habit_from_name(self, name):
         db = Database()
         cur = db.get_cursor()
-        cur.execute('SELECT * FROM habits WHERE LOWER(name) = ?', (name.lower(),))
+        cur.execute(f"SELECT * FROM habits WHERE LOWER(name) LIKE '%{name.lower()}%'")
         habit = cur.fetchone()
         cur.close()
         db.close()

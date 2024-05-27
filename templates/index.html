@@ -14,12 +14,9 @@
             habits.forEach(habit => {
                 const name = habit[0];
                 const periodicity = habit[1];
-                // const createdDate = new Date(habit[2]).toLocaleDateString();
                 const createdDate = habit[2];
                 const streak = habit[3];
-                // const lastUpdatedDate = new Date(habit[4]).toLocaleDateString();
                 const lastUpdatedDate = habit[4];
-                console.log(name, periodicity, createdDate, streak, lastUpdatedDate);
                 getButtonStatus(name, periodicity, createdDate, streak, lastUpdatedDate);
                 fetchStreaks();
             });
@@ -141,11 +138,22 @@
 
         async function searchLongestStreak() {
             const name = document.getElementById('search-name').value;
-            const response = await fetch(`/habits`);
-            const habits = await response.json();
-            const habit = habits.find(h => h[0] === name);
+            const response = await fetch(`/habits/${name}`);
+            const habit = await response.json();
             const longestStreakInfo = document.getElementById('longest-streak-info');
-            longestStreakInfo.textContent = habit ? `Longest streak for ${name}: ${habit[3]}` : `Habit ${name} not found`;
+            if (habit) {
+                let freqType = habit[1];
+                if (freqType === 'D') {
+                    freqType = 'day(s)';
+                } else if (freqType === 'W') {
+                    freqType = 'week(s)';
+                } else {
+                    freqType = 'month(s)';
+                }
+                longestStreakInfo.textContent = `Longest streak for ${habit[0]}: ${habit[3]} ${freqType}`;
+            } else {
+                longestStreakInfo.textContent = `Habit ${name} not found`;
+            }
         }
 
         window.onload = () => {
@@ -203,6 +211,7 @@
         <h2>Search Longest Streak</h2>
         <input type="text" id="search-name" placeholder="Habit name">
         <button onclick="searchLongestStreak()">Search</button>
+        <p id="longest-streak-info"></p>
     </div>
 </body>
 </html>
