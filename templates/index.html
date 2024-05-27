@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        async function fetchHabits() {
+            const response = await fetch('/habits');
+            const habits = await response.json();
+            const tableBody = document.getElementById('habits-table-body');
+            tableBody.innerHTML = '';
+            habits.forEach(habit => {
+
+                const createdDate = new Date(habit[2]).toLocaleDateString();
+                const lastUpdatedDate = new Date(habit[4]).toLocaleDateString();
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${habit[0]}</td>
+                    <td>${habit[1]}</td>
+                    <td>${createdDate}</td>
+                    <td>${habit[3]}</td>
+                    <td>${lastUpdatedDate}</td>
+                    <td><button onclick="deleteHabit('${habit[0]}')">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function createHabit() {
+            const name = document.getElementById('habit-name').value;
+            const periodicity = document.getElementById('habit-periodicity').value;
+            const response = await fetch('/habits', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, periodicity })
+            });
+            if (response.ok) {
+                fetchHabits();
+            }
+        }
+
+        async function deleteHabit(name) {
+            const response = await fetch(`/habits/${name}`, { method: 'DELETE' });
+            if (response.ok) {
+                fetchHabits();
+            }
+        }
+
+        async function fetchStreaks() {
+            const dailyResponse = await fetch('/streaks/daily');
+            const weeklyResponse = await fetch('/streaks/weekly');
+            const monthlyResponse = await fetch('/streaks/monthly');
+
+            const dailyStreak = await dailyResponse.json();
+            const weeklyStreak = await weeklyResponse.json();
+            const monthlyStreak = await monthlyResponse.json();
+
+            document.getElementById('daily-streak').textContent = dailyStreak.length > 0 ? `Longest daily streak: ${dailyStreak[0][0]} with ${dailyStreak[0][1]} days` : 'No daily streaks found';
+            document.getElementById('weekly-streak').textContent = weeklyStreak.length > 0 ? `Longest weekly streak: ${weeklyStreak[0][0]} with ${weeklyStreak[0][1]} weeks` : 'No weekly streaks found';
+            document.getElementById('monthly-streak').textContent = monthlyStreak.length > 0 ? `Longest monthly streak: ${monthlyStreak[0][0]} with ${monthlyStreak[0][1]} months` : 'No monthly streaks found';
+        }
+
+        async function filterHabits() {
+            const periodicity = document.getElementById('filter-periodicity').value;
+            if (periodicity === '') {
+                fetchHabits();
+                return;
+            }
+            const response = await fetch('/habits');
+            const habits = await response.json();
+            const filteredHabits = habits.filter(habit => habit[1] === periodicity);
+            const tableBody = document.getElementById('habits-table-body');
+            tableBody.innerHTML = '';
+            filteredHabits.forEach(habit => {
+                const createdDate = new Date(habit[2]).toLocaleDateString();
+                const lastUpdatedDate = new Date(habit[4]).toLocaleDateString();
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${habit[0]}</td>
+                    <td>${habit[1]}</td>
+                    <td>${createdDate}</td>
+                    <td>${habit[3]}</td>
+                    <td>${lastUpdatedDate}</td>
+                    <td><button onclick="deleteHabit('${habit[0]}')">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function searchLongestStreak() {
+            const name = document.getElementById('search-name').value;
+            const response = await fetch(`/habits`);
+            const habits = await response.json();
+            const habit = habits.find(h => h[0] === name);
+            const longestStreakInfo = document.getElementById('longest-streak-info');
+            longestStreakInfo.textContent = habit ? `Longest streak for ${name}: ${habit[3]}` : `Habit ${name} not found`;
+        }
+
+        window.onload = () => {
+            fetchHabits();
+            fetchStreaks();
+            // setInterval(fetchHabits, 10000); // Refresh habits every 10 seconds
+        }
+    </script>
+</head>
+<body>
+    <h1>Habit Tracker</h1>
+    <div>
+        <h2>Create Habit</h2>
+        <input type="text" id="habit-name" placeholder="Habit name">
+        <select id="habit-periodicity">
+            <option value="D">Daily</option>
+            <option value="W">Weekly</option>
+            <option value="M">Monthly</option>
+        </select>
+        <button onclick="createHabit()">Create</button>
+    </div>
+    <div>
+        <h2>Habits</h2>
+        <div>
+            Filter by periodicity:
+            <select id="filter-periodicity" onchange="filterHabits()">
+                <option value="">All</option>
+                <option value="D">Daily</option>
+                <option value="W">Weekly</option>
+                <option value="M">Monthly</option>
+            </select>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Periodicity</th>
+                    <th>Created At</th>
+                    <th>Streak</th>
+                    <th>Last Updated At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="habits-table-body">
+                <!-- Habit rows will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <h2>Streaks</h2>
+        <p id="daily-streak"></p>
+        <p id="weekly-streak"></p>
+        <p id="monthly-streak"></p>
+    </div>
+    <div>
+        <h2>Search Longest Streak</h2>
+        <input type="text" id="search-name" placeholder="Habit name">
+        <button onclick="searchLongestStreak()">Search</button>
+    </div>
+</body>
+</html>
