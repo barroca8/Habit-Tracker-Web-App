@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, render_template
 from habit import Habit
 from db import Database
-from datetime import datetime
+from datetime import datetime, timedelta
+import random
 
 app = Flask(__name__)
 
@@ -59,6 +60,7 @@ if __name__ == '__main__':
         {"name": "Grocery Shopping", "periodicity": "M"}
     ]
     for habit_data in predefined_habits:
-        habit = Habit(name=habit_data["name"], periodicity=habit_data["periodicity"], created_at=datetime.now(), streak=0, last_updated_at=datetime.now())
+        created_at = datetime.now() - timedelta(days=random.randint(1, 365))
+        habit = Habit(name=habit_data["name"], periodicity=habit_data["periodicity"], created_at=created_at, streak=random.randint(1,20), last_updated_at=datetime.now())
         habit.create_habit()
     app.run(debug=True)
