@@ -32,6 +32,20 @@ def delete_habit(name):
     habit.delete_habit()
     return jsonify({'message': f'Habit {name} deleted successfully'})
 
+@app.route('/habits/<string:name>', methods=['PUT'])
+def mark_habit_as_completed(name):
+    habit = Habit(name=name)
+    habit.get_habit_from_name(name)
+    habit.mark_habit_as_completed()
+    return jsonify({'message': f'Habit {name} marked as completed'})
+
+@app.route('/habits/check/', methods=['GET'])
+def update_marked_status():
+    periodicity = request.args.get('periodicity')
+    last_updated_at = request.args.get('last_updated_at')
+    status = date_check_with_periodicity(periodicity, last_updated_at)
+    return jsonify(status)
+
 @app.route('/streaks/daily', methods=['GET'])
 def get_longest_daily_streak():
     habit = Habit()
@@ -64,11 +78,20 @@ if __name__ == '__main__':
         created_at = datetime.now() - timedelta(days=random.randint(1, 365))
         last_updated_at = datetime.now() - timedelta(days=random.randint(1, 10))
         max_streak = check_max_streak(habit_data["periodicity"], created_at, last_updated_at)
+        if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) != "Streak Expired":
+            # TODO: max_streak is sometimes -1, when periodicity is weekly
+            if max_streak != 0:
+                print(max_streak)
+                streak = random.randint(1, max_streak)
+            else:
+                streak = 0 
+        if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) == "Streak Expired":
+            streak = 0
         habit = Habit(
             name=habit_data["name"], 
             periodicity=habit_data["periodicity"],
             created_at=created_at,
-            streak = random.randint(1, max_streak) if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) != "Streak Expired" else 0,
+            streak=streak,
             last_updated_at=last_updated_at
         )
         habit.create_habit()

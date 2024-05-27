@@ -25,6 +25,9 @@ def month_check(last_updated_at):
         return "Streak Expired"
 
 def date_check_with_periodicity(periodicity, last_updated_at):
+    # if last_updated_at isn't a datetime object, convert it to one
+    if not isinstance(last_updated_at, datetime):
+        last_updated_at = datetime.fromisoformat(last_updated_at)
     if periodicity == 'D':
         return day_check(last_updated_at)
     elif periodicity == 'W':

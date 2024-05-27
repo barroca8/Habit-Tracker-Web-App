@@ -45,12 +45,24 @@ class Habit:
     def get_all_habits(self):
         db = Database()
         cur = db.get_cursor()
-        cur.execute('SELECT * FROM habits')
+        cur.execute('SELECT * FROM habits ORDER BY streak DESC')
         habits = cur.fetchall()
         cur.close()
         db.close()
         formatted_habits = [(name, self._format_periodicity(periodicity), created_at.split('T')[0], streak, last_updated_at.split('T')[0]) for name, periodicity, created_at, streak, last_updated_at in habits]
         return formatted_habits
+    
+    def get_habit_from_name(self, name):
+        db = Database()
+        cur = db.get_cursor()
+        cur.execute('SELECT * FROM habits WHERE LOWER(name) = ?', (name.lower(),))
+        habit = cur.fetchone()
+        cur.close()
+        db.close()
+        if habit:
+            name, periodicity, created_at, streak, last_updated_at = habit
+            return (name, self._format_periodicity(periodicity), created_at.split('T')[0], streak, last_updated_at.split('T')[0])
+        return None
 
     def longest_daily_streak(self):
         return self._longest_streak('D')
