@@ -12,7 +12,6 @@
             const tableBody = document.getElementById('habits-table-body');
             tableBody.innerHTML = '';
             habits.forEach(habit => {
-
                 const createdDate = new Date(habit[2]).toLocaleDateString();
                 const lastUpdatedDate = new Date(habit[4]).toLocaleDateString();
                 const row = document.createElement('tr');

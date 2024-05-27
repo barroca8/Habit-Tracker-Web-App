@@ -3,6 +3,7 @@ from habit import Habit
 from db import Database
 from datetime import datetime, timedelta
 import random
+from functions_helper import date_check_with_periodicity, check_max_streak
 
 app = Flask(__name__)
 
@@ -61,6 +62,14 @@ if __name__ == '__main__':
     ]
     for habit_data in predefined_habits:
         created_at = datetime.now() - timedelta(days=random.randint(1, 365))
-        habit = Habit(name=habit_data["name"], periodicity=habit_data["periodicity"], created_at=created_at, streak=random.randint(1,20), last_updated_at=datetime.now())
+        last_updated_at = datetime.now() - timedelta(days=random.randint(1, 10))
+        max_streak = check_max_streak(habit_data["periodicity"], created_at, last_updated_at)
+        habit = Habit(
+            name=habit_data["name"], 
+            periodicity=habit_data["periodicity"],
+            created_at=created_at,
+            streak = random.randint(1, max_streak) if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) != "Streak Expired" else 0,
+            last_updated_at=last_updated_at
+        )
         habit.create_habit()
     app.run(debug=True)
