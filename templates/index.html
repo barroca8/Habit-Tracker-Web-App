@@ -12,19 +12,47 @@
             const tableBody = document.getElementById('habits-table-body');
             tableBody.innerHTML = '';
             habits.forEach(habit => {
-                const createdDate = new Date(habit[2]).toLocaleDateString();
-                const lastUpdatedDate = new Date(habit[4]).toLocaleDateString();
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${habit[0]}</td>
-                    <td>${habit[1]}</td>
-                    <td>${createdDate}</td>
-                    <td>${habit[3]}</td>
-                    <td>${lastUpdatedDate}</td>
-                    <td><button onclick="deleteHabit('${habit[0]}')">Delete</button></td>
-                `;
-                tableBody.appendChild(row);
+                const name = habit[0];
+                const periodicity = habit[1];
+                // const createdDate = new Date(habit[2]).toLocaleDateString();
+                const createdDate = habit[2];
+                const streak = habit[3];
+                // const lastUpdatedDate = new Date(habit[4]).toLocaleDateString();
+                const lastUpdatedDate = habit[4];
+                getButtonStatus(name, periodicity, createdDate, streak, lastUpdatedDate)
             });
+        }
+
+        async function getButtonStatus(name, periodicity, createdDate, streak, last_updated_at) {
+            // periodicity[0] is used to get the first character of the periodicity string (D, W, M)
+            const response = await fetch(`/habits/check/?periodicity=${periodicity[0]}&last_updated_at=${last_updated_at}`);
+            const status = await response.json();
+            let buttonHTML = '';
+            if (status === 'Same') {
+                if (periodicity === 'D') {
+                    buttonHTML = `<button class="disabled" disabled>Already Marked as Completed Today</button>`;
+                } else if (periodicity === 'W') {
+                    buttonHTML = `<button class="disabled" disabled>Already Marked as Completed This Week</button>`;
+                } else {
+                    buttonHTML = `<button class="disabled" disabled>Already Marked as Completed This Month</button>`;
+                }
+            } else {
+                buttonHTML = `<button onclick="markHabitAsCompleted('${name}')">Mark as Completed</button>`;
+            }
+            const tableBody = document.getElementById('habits-table-body');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${periodicity}</td>
+                <td>${createdDate}</td>
+                <td>${streak}</td>
+                <td>${last_updated_at}</td>
+                <td>
+                    ${buttonHTML}
+                    <button onclick="deleteHabit('${name}')">Delete</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
         }
 
         async function createHabit() {
@@ -44,6 +72,13 @@
 
         async function deleteHabit(name) {
             const response = await fetch(`/habits/${name}`, { method: 'DELETE' });
+            if (response.ok) {
+                fetchHabits();
+            }
+        }
+
+        async function markHabitAsCompleted(name) {
+            const response = await fetch(`/habits/${name}`, { method: 'PUT' });
             if (response.ok) {
                 fetchHabits();
             }
@@ -103,7 +138,7 @@
             fetchHabits();
             fetchStreaks();
             // setInterval(fetchHabits, 10000); // Refresh habits every 10 seconds
-        }
+        };
     </script>
 </head>
 <body>

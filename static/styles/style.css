@@ -29,3 +29,8 @@ button {
 button:hover {
     background-color: #45a049;
 }
+
+button:disabled {
+    background-color: #436b1b; /* Darker green */
+    cursor: not-allowed; /* Shows a forbidden sign on hover */
+}
