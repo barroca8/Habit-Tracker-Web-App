@@ -154,9 +154,9 @@
             const longestStreakInfo = document.getElementById('longest-streak-info');
             if (habit) {
                 let freqType = habit[1];
-                if (freqType === 'D') {
+                if (freqType[0] === 'D') {
                     freqType = 'day(s)';
-                } else if (freqType === 'W') {
+                } else if (freqType[0] === 'W') {
                     freqType = 'week(s)';
                 } else {
                     freqType = 'month(s)';
