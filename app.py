@@ -70,9 +70,9 @@ def get_longest_monthly_streak():
     streak = habit.longest_monthly_streak()
     return jsonify(streak)
 
-if __name__ == '__main__':
+def create_initial_habits():
     db = Database()
-    db.clear_habits_table()
+    db.clear_habits_table() # TODO: this needs to be removed in production, to keep habits stored between sessions
     predefined_habits = [
         {"name": "Brush Teeth", "periodicity": "D"},
         {"name": "Exercise", "periodicity": "D"},
@@ -101,4 +101,3 @@ if __name__ == '__main__':
             last_updated_at=last_updated_at
         )
         habit.create_habit()
-    app.run(debug=True)
