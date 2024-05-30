@@ -3,13 +3,24 @@ from habit import Habit
 from db import Database
 from datetime import datetime, timedelta
 import random
-from functions_helper import date_check_with_periodicity, check_max_streak
+from functions_helper import date_check_with_periodicity, check_max_streak, create_initial_habits
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/create_initial_habits', methods=['POST'])
+def create_initial_habits_route():
+    create_initial_habits()
+    return jsonify({'status': 'success'})
+
+@app.route('/clear_habits_table', methods=['POST'])
+def clear_habits_table_route():
+    db = Database()
+    db.clear_habits_table()
+    return jsonify({'status': 'success'})
 
 @app.route('/habits', methods=['GET'])
 def get_habits():
@@ -69,35 +80,3 @@ def get_longest_monthly_streak():
     habit = Habit()
     streak = habit.longest_monthly_streak()
     return jsonify(streak)
-
-def create_initial_habits():
-    db = Database()
-    db.clear_habits_table() # TODO: this needs to be removed in production, to keep habits stored between sessions
-    predefined_habits = [
-        {"name": "Brush Teeth", "periodicity": "D"},
-        {"name": "Exercise", "periodicity": "D"},
-        {"name": "Read Book", "periodicity": "W"},
-        {"name": "Call Family", "periodicity": "W"},
-        {"name": "Grocery Shopping", "periodicity": "M"}
-    ]
-    for habit_data in predefined_habits:
-        created_at = datetime.now() - timedelta(days=random.randint(1, 365))
-        last_updated_at = datetime.now() - timedelta(days=random.randint(1, 10))
-        max_streak = check_max_streak(habit_data["periodicity"], created_at, last_updated_at)
-        if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) != "Streak Expired":
-            # TODO: max_streak is sometimes -1, when periodicity is weekly
-            if max_streak != 0:
-                print(max_streak)
-                streak = random.randint(1, max_streak)
-            else:
-                streak = 0 
-        if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) == "Streak Expired":
-            streak = 0
-        habit = Habit(
-            name=habit_data["name"], 
-            periodicity=habit_data["periodicity"],
-            created_at=created_at,
-            streak=streak,
-            last_updated_at=last_updated_at
-        )
-        habit.create_habit()

@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+import random
+from habit import Habit
 
 def day_check(last_updated_at):
     if last_updated_at.date() == datetime.now().date():
@@ -47,4 +49,32 @@ def check_max_streak(periodicity, created_at, last_updated_at):
     elif periodicity == 'M':
         return (last_updated_at.year - created_at.year) * 12 + last_updated_at.month - created_at.month
 
-
+def create_initial_habits():
+    predefined_habits = [
+        {"name": "Brush Teeth", "periodicity": "D"},
+        {"name": "Exercise", "periodicity": "D"},
+        {"name": "Read Book", "periodicity": "W"},
+        {"name": "Call Family", "periodicity": "W"},
+        {"name": "Grocery Shopping", "periodicity": "M"}
+    ]
+    for habit_data in predefined_habits:
+        created_at = datetime.now() - timedelta(days=random.randint(1, 365))
+        last_updated_at = datetime.now() - timedelta(days=random.randint(1, 10))
+        max_streak = check_max_streak(habit_data["periodicity"], created_at, last_updated_at)
+        if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) != "Streak Expired":
+            # TODO: max_streak is sometimes -1, when periodicity is weekly
+            if max_streak != 0:
+                print(max_streak)
+                streak = random.randint(1, max_streak)
+            else:
+                streak = 0 
+        if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) == "Streak Expired":
+            streak = 0
+        habit = Habit(
+            name=habit_data["name"], 
+            periodicity=habit_data["periodicity"],
+            created_at=created_at,
+            streak=streak,
+            last_updated_at=last_updated_at
+        )
+        habit.create_habit()
