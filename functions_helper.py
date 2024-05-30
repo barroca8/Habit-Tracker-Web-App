@@ -56,8 +56,8 @@ def create_initial_habits():
         predefined_habits = json.load(f)
 
     for habit_data in predefined_habits:
-        created_at = datetime.now() - timedelta(days=random.randint(1, 365))
         last_updated_at = datetime.now() - timedelta(days=random.randint(1, 10))
+        created_at = last_updated_at - timedelta(days=random.randint(1, 365))
         max_streak = check_max_streak(habit_data["periodicity"], created_at, last_updated_at)
         if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) != "Streak Expired":
             # TODO: max_streak is sometimes -1, when periodicity is weekly
