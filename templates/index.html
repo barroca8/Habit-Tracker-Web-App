@@ -168,6 +168,20 @@
             }
         }
 
+        async function createInitialHabits() {
+            const response = await fetch('/create_initial_habits', { method: 'POST' });
+            if (response.ok) {
+                fetchHabits();
+            }
+        }
+
+        async function clearHabitsTable() {
+            const response = await fetch('/clear_habits_table', { method: 'POST' });
+            if (response.ok) {
+                fetchHabits();
+            }
+        }
+
         window.onload = () => {
             fetchHabits();
             fetchStreaks();
@@ -176,6 +190,10 @@
 </head>
 <body>
     <h1>Habit Tracker</h1>
+    <div>
+        <button onclick="createInitialHabits()">Create Initial Habits</button>
+        <button onclick="clearHabitsTable()">Clear Habits Table</button>
+    </div>
     <div>
         <h2>Create Habit</h2>
         <input type="text" id="habit-name" placeholder="Habit name">
