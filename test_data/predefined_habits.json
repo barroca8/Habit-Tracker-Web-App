@@ -1,0 +1,7 @@
+[
+    {"name": "Brush Teeth", "periodicity": "D"},
+    {"name": "Exercise", "periodicity": "D"},
+    {"name": "Read Book", "periodicity": "W"},
+    {"name": "Call Family", "periodicity": "W"},
+    {"name": "Grocery Shopping", "periodicity": "M"}
+]
