@@ -147,6 +147,7 @@
         //     });
         // }
 
+        // TODO: make search longest streak be a dropdown list of habits, right now if we search "a" it shows a streak for a random habit with the letter "a" in it
         async function searchLongestStreak() {
             const name = document.getElementById('search-name').value;
             const response = await fetch(`/habits/${name}`);
