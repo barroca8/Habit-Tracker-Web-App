@@ -38,6 +38,8 @@ def get_habit(name):
 def create_habit():
     data = request.json
     name = data['name'].title()
+    if name == '':
+        return jsonify({'message': 'Habit name cannot be empty'}), 400
     periodicity = data['periodicity']
     habit = Habit(name=name, periodicity=periodicity, created_at=datetime.now(), streak=0, last_updated_at=datetime.now())
     habit.create_habit()
