@@ -80,6 +80,10 @@
         async function createHabit() {
             const name = document.getElementById('habit-name').value;
             const periodicity = document.getElementById('habit-periodicity').value;
+            if (!name.trim()) {
+                alert('Habit name is required');
+                return;
+            }
             const response = await fetch('/habits', {
                 method: 'POST',
                 headers: {
@@ -196,7 +200,7 @@
     </div>
     <div>
         <h2>Create Habit</h2>
-        <input type="text" id="habit-name" placeholder="Habit name">
+        <input type="text" id="habit-name" placeholder="Habit name" required>
         <select id="habit-periodicity">
             <option value="D">Daily</option>
             <option value="W">Weekly</option>
