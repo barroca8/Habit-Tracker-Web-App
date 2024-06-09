@@ -45,9 +45,9 @@ class Habit:
         formatted_habits = [(name, self._format_periodicity(periodicity), created_at.split('T')[0], streak, last_updated_at.split('T')[0]) for name, periodicity, created_at, streak, last_updated_at in habits]
         return formatted_habits
     
-    def get_habit_from_name(self, name):
+    def get_habit_from_name(self):
         cur = db.get_cursor()
-        cur.execute(f"SELECT * FROM habits WHERE LOWER(name) LIKE '%{name.lower()}%'")
+        cur.execute(f"SELECT * FROM habits WHERE LOWER(name) LIKE '%{self.name.lower()}%'")
         habit = cur.fetchone()
         cur.close()
         if habit:

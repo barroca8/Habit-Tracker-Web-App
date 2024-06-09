@@ -31,8 +31,8 @@ def get_habits():
 
 @app.route('/habits/<string:name>', methods=['GET'])
 def get_habit(name):
-    habit = Habit()
-    habit = habit.get_habit_from_name(name)
+    habit = Habit(name=name)
+    habit = habit.get_habit_from_name()
     return jsonify(habit)
 
 @app.route('/habits', methods=['POST'])
