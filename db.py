@@ -6,6 +6,7 @@ class Database:
         self.cur = self.conn.cursor()
         self.cur.execute('CREATE TABLE IF NOT EXISTS habits (name TEXT, periodicity TEXT, created_at TEXT, streak INTEGER, last_updated_at DATE)')
         self.conn.commit()
+        self.cur.close()
 
     def get_cursor(self):
         return self.conn.cursor()
