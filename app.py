@@ -7,6 +7,8 @@ from functions_helper import date_check_with_periodicity, check_max_streak, crea
 
 app = Flask(__name__)
 
+db = Database()
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -18,7 +20,6 @@ def create_initial_habits_route():
 
 @app.route('/clear_habits_table', methods=['POST'])
 def clear_habits_table_route():
-    db = Database()
     db.clear_habits_table()
     return jsonify({'status': 'success'})
 
