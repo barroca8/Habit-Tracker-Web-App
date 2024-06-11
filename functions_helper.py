@@ -85,19 +85,33 @@ def fill_habit_tracking_data(
     name: str,
     periodicity: str,
     created_at: datetime,
-    streak, int,
+    streak: int,
     last_updated_at: datetime
 ):
+    
+    
     if periodicity == 'D':
         # generate a range of all dates between created_at and last_updated_at
+        diff = (last_updated_at - created_at).days
+        dates_list = [(created_at + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(diff)]
+        print(dates_list)
         pass
 
     if periodicity == 'W':
         # generate a range of one date per week between created_at and last_updated_at
+        diff = (last_updated_at - created_at).days // 7
+        dates_list = [(created_at + timedelta(weeks=i)).strftime('%Y-%m-%d') for i in range(diff)]
+        print(dates_list)
+        # TODO: search how to generate a random date in a week
         pass
 
     if periodicity == 'M':
         # generate a range of one date per month between created_at and last_updated_at
+        diff = (last_updated_at.year - created_at.year) * 12 + last_updated_at.month - created_at.month
+        dates_list = [(created_at + timedelta(months=i)).strftime('%Y-%m-%d') for i in range(diff)]
+        # TODO: timedelta(months=i) doesn't work
+        # TODO: search how to generate a random date in a month
+        print(dates_list)
         pass
 
     # if streak != 0, we need to make sure that streak is reflected in this list of dates
@@ -107,7 +121,15 @@ def fill_habit_tracking_data(
     # TODO: this makes the streak column be redundant, as it can be gotten from a simple count in this table. reconsider habits structure
 
 
-
+if __name__ == '__main__':
+    fill_habit_tracking_data(
+        habit_id='test_uuid',
+        name='test_name',
+        periodicity='M',
+        created_at=datetime(2024,5,1),
+        streak=30,
+        last_updated_at=datetime.now()
+    )
 
 
 
