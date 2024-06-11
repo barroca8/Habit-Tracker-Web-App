@@ -56,6 +56,8 @@ def create_initial_habits():
     with open('test_data/predefined_habits.json', 'r') as f:
         predefined_habits = json.load(f)
 
+    # TODO: use habit_tracking table to know the streaks
+    # TODO: generate random values for habit_tracking for 1 year of tracking of the predefined_habits
     for habit_data in predefined_habits:
         last_updated_at = datetime.now() - timedelta(days=random.randint(1, 10))
         created_at = last_updated_at - timedelta(days=random.randint(1, 365))
@@ -76,3 +78,41 @@ def create_initial_habits():
             last_updated_at=last_updated_at
         )
         habit.create_habit()
+
+
+def fill_habit_tracking_data(
+    habit_id: str,
+    name: str,
+    periodicity: str,
+    created_at: datetime,
+    streak, int,
+    last_updated_at: datetime
+):
+    if periodicity == 'D':
+        # generate a range of all dates between created_at and last_updated_at
+        pass
+
+    if periodicity == 'W':
+        # generate a range of one date per week between created_at and last_updated_at
+        pass
+
+    if periodicity == 'M':
+        # generate a range of one date per month between created_at and last_updated_at
+        pass
+
+    # if streak != 0, we need to make sure that streak is reflected in this list of dates
+    # after the streak is assured, we need to make sure we break the streak on the date just before the streak is assured
+    # the rest of the dates are randomized, choosing about 20% of those dates (percentage to decide later)
+    # all the values are written to habit_tracking, using the uuid and the date
+    # TODO: this makes the streak column be redundant, as it can be gotten from a simple count in this table. reconsider habits structure
+
+
+
+
+
+
+
+
+
+
+

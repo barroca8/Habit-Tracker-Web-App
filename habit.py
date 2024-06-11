@@ -27,6 +27,7 @@ class Habit:
     def delete_habit(self):
         cur = db.get_cursor()
         cur.execute('DELETE FROM habits WHERE id = ?', (self.habit_id,))
+        cur.execute('DELETE FROM habit_tracking WHERE habit_id = ?', (self.habit_id,))
         db.conn.commit()
         cur.close()
         print(f"Deleted habit {self.name}")

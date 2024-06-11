@@ -22,7 +22,8 @@ class Database:
             CREATE TABLE IF NOT EXISTS habit_tracking (
                 habit_id UUID,
                 marked_date DATE
-            )"""
+            )
+            """
         )
         self.conn.commit()
         self.cur.close()
@@ -54,6 +55,15 @@ class Database:
                 last_updated_at DATE,
                 PRIMARY KEY (id)
                 )
+            """
+        )
+        cur.execute('DROP TABLE IF EXISTS habit_tracking')
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS habit_tracking (
+                habit_id UUID,
+                marked_date DATE
+            )
             """
         )
         self.conn.commit()
