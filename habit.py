@@ -4,7 +4,8 @@ from datetime import datetime
 db = Database()
 
 class Habit:
-    def __init__(self, name=None, periodicity=None, created_at=None, streak=None, last_updated_at=None):
+    def __init__(self, habit_id=None, name=None, periodicity=None, created_at=None, streak=None, last_updated_at=None):
+        self.habit_id = str(habit_id)
         self.name = name.title() if name else name
         self.periodicity = periodicity
         self.created_at = created_at
@@ -12,37 +13,40 @@ class Habit:
         self.last_updated_at = last_updated_at
 
     def create_habit(self):
-        if db.habit_exists(self.name):
+        if db.habit_exists(self.habit_id):
             print(f"Habit {self.name} already exists.")
+            # TODO: in this case, show in the frontend that the habit already exists
             return
         cur = db.get_cursor()
-        cur.execute('INSERT INTO habits (name, periodicity, created_at, streak, last_updated_at) VALUES (?, ?, ?, ?, ?)', 
-                    (self.name.title(), self.periodicity, self.created_at.isoformat(), self.streak, self.last_updated_at.isoformat()))
+        cur.execute('INSERT INTO habits (id, name, periodicity, created_at, streak, last_updated_at) VALUES (?, ?, ?, ?, ?, ?)', 
+                    (self.habit_id, self.name.title(), self.periodicity, self.created_at.isoformat(), self.streak, self.last_updated_at.isoformat()))
         db.conn.commit()
         cur.close()
         print(f"Created habit {self.name} with periodicity {self.periodicity}")
 
     def delete_habit(self):
         cur = db.get_cursor()
-        cur.execute('DELETE FROM habits WHERE name = ?', (self.name,))
+        cur.execute('DELETE FROM habits WHERE id = ?', (self.habit_id,))
         db.conn.commit()
         cur.close()
         print(f"Deleted habit {self.name}")
 
     def mark_habit_as_completed(self):
         cur = db.get_cursor()
-        cur.execute('UPDATE habits SET streak = streak + 1, last_updated_at = ? WHERE name = ?', 
-                    (datetime.now().isoformat(), self.name))
+        # TODO: all the calls getting habits by name need to be by id, so we have a common value for habit_tracking
+        cur.execute('UPDATE habits SET streak = streak + 1, last_updated_at = ? WHERE id = ?', 
+                    (datetime.now().isoformat(), self.habit_id))
+        cur.execute('INSERT INTO habit_tracking VALUES(?, ?)', (self.habit_id, datetime.now().isoformat()))
         db.conn.commit()
         cur.close()
         print(f"Checked off habit {self.name}")
 
     def get_all_habits(self):
         cur = db.get_cursor()
-        cur.execute('SELECT * FROM habits ORDER BY streak DESC')
+        cur.execute('SELECT * FROM habits ORDER BY id ASC')
         habits = cur.fetchall()
         cur.close()
-        formatted_habits = [(name, self._format_periodicity(periodicity), created_at.split('T')[0], streak, last_updated_at.split('T')[0]) for name, periodicity, created_at, streak, last_updated_at in habits]
+        formatted_habits = [(habit_id, name, self._format_periodicity(periodicity), created_at.split('T')[0], streak, last_updated_at.split('T')[0]) for habit_id, name, periodicity, created_at, streak, last_updated_at in habits]
         return formatted_habits
     
     def get_habit_from_name(self):
@@ -51,8 +55,8 @@ class Habit:
         habit = cur.fetchone()
         cur.close()
         if habit:
-            name, periodicity, created_at, streak, last_updated_at = habit
-            return (name, self._format_periodicity(periodicity), created_at.split('T')[0], streak, last_updated_at.split('T')[0])
+            self.habit_id, self.name, self.periodicity, self.created_at, self.streak, self.last_updated_at = habit
+            return (self.habit_id, self.name, self._format_periodicity(self.periodicity), self.created_at.split('T')[0], self.streak, self.last_updated_at.split('T')[0])
         return None
 
     def longest_daily_streak(self):

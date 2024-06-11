@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import random
 from habit import Habit
 import json
+import uuid
 
 def day_check(last_updated_at):
     if last_updated_at.date() == datetime.now().date():
@@ -60,15 +61,14 @@ def create_initial_habits():
         created_at = last_updated_at - timedelta(days=random.randint(1, 365))
         max_streak = check_max_streak(habit_data["periodicity"], created_at, last_updated_at)
         if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) != "Streak Expired":
-            # TODO: max_streak is sometimes -1, when periodicity is weekly
             if max_streak != 0:
-                print(max_streak)
                 streak = random.randint(1, max_streak)
             else:
                 streak = 0 
         if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) == "Streak Expired":
             streak = 0
         habit = Habit(
+            habit_id=uuid.uuid4(),
             name=habit_data["name"], 
             periodicity=habit_data["periodicity"],
             created_at=created_at,

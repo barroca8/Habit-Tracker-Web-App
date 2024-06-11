@@ -11,19 +11,20 @@
             let habits = await response.json();
 
             if (periodicity !== '') {
-                habits = habits.filter(habit => habit[1][0] === periodicity);
+                habits = habits.filter(habit => habit[2][0] === periodicity);
             }
 
             const tableBody = document.getElementById('habits-table-body');
             tableBody.innerHTML = '';
 
             habits.forEach(habit => {
-                const name = habit[0];
-                const periodicity = habit[1];
-                const createdDate = habit[2];
-                const streak = habit[3];
-                const lastUpdatedDate = habit[4];
-                getButtonStatus(name, periodicity, createdDate, streak, lastUpdatedDate);
+                const id = habit[0]
+                const name = habit[1];
+                const periodicity = habit[2];
+                const createdDate = habit[3];
+                const streak = habit[4];
+                const lastUpdatedDate = habit[5];
+                getButtonStatus(id, name, periodicity, createdDate, streak, lastUpdatedDate);
                 fetchStreaks();
             });
         }
@@ -33,7 +34,7 @@
             fetchHabits(periodicity);
         }
 
-        async function getButtonStatus(name, periodicity, createdDate, streak, last_updated_at) {
+        async function getButtonStatus(habit_id, name, periodicity, createdDate, streak, last_updated_at) {
             // periodicity[0] is used to get the first character of the periodicity string (D, W, M)
             const today = new Date().toISOString().slice(0, 10);
             const response = await fetch(`/habits/check/?periodicity=${periodicity[0]}&last_updated_at=${last_updated_at}`);
@@ -54,6 +55,7 @@
             const tableBody = document.getElementById('habits-table-body');
             const row = document.createElement('tr');
             row.innerHTML = `
+                <td>${habit_id}</td>
                 <td>${name}</td>
                 <td>${periodicity}</td>
                 <td>${createdDate}</td>
@@ -125,32 +127,6 @@
             document.getElementById('monthly-streak').textContent = monthlyStreak.length > 0 ? `Longest monthly streak: ${monthlyStreak[0][0]} with ${monthlyStreak[0][1]} months` : 'No monthly streaks found';
         }
 
-        // async function filterHabits() {
-        //     const periodicity = document.getElementById('filter-periodicity').value;
-        //     if (periodicity === '') {
-        //         fetchHabits();
-        //         return;
-        //     }
-        //     const response = await fetch('/habits');
-        //     const habits = await response.json();
-        //     const filteredHabits = habits.filter(habit => habit[1][0] === periodicity);
-        //     console.log(filteredHabits)
-        //     const tableBody = document.getElementById('habits-table-body');
-        //     tableBody.innerHTML = '';
-        //     filteredHabits.forEach(habit => {
-        //         const row = document.createElement('tr');
-        //         row.innerHTML = `
-        //             <td>${habit[0]}</td>
-        //             <td>${habit[1]}</td>
-        //             <td>${habit[2]}</td>
-        //             <td>${habit[3]}</td>
-        //             <td>${habit[4]}</td>
-        //             <td><button onclick="deleteHabit('${habit[0]}')">Delete</button></td>
-        //         `;
-        //         tableBody.appendChild(row);
-        //     });
-        // }
-
         // TODO: make search longest streak be a dropdown list of habits, right now if we search "a" it shows a streak for a random habit with the letter "a" in it
         async function searchLongestStreak() {
             const name = document.getElementById('search-name').value;
@@ -158,7 +134,7 @@
             const habit = await response.json();
             const longestStreakInfo = document.getElementById('longest-streak-info');
             if (habit) {
-                let freqType = habit[1];
+                let freqType = habit[2];
                 if (freqType[0] === 'D') {
                     freqType = 'day(s)';
                 } else if (freqType[0] === 'W') {
@@ -166,7 +142,7 @@
                 } else {
                     freqType = 'month(s)';
                 }
-                longestStreakInfo.textContent = `Current streak for ${habit[0]}: ${habit[3]} ${freqType}`;
+                longestStreakInfo.textContent = `Current streak for ${habit[1]}: ${habit[4]} ${freqType}`;
             } else {
                 longestStreakInfo.textContent = `Habit ${name} not found`;
             }
@@ -222,6 +198,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Name</th>
                     <th>Periodicity</th>
                     <th>Created At</th>

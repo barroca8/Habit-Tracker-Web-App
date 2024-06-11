@@ -48,14 +48,15 @@ def create_habit():
 
 @app.route('/habits/<string:name>', methods=['DELETE'])
 def delete_habit(name):
-    habit = Habit(name=name, periodicity=None, created_at=None, streak=None, last_updated_at=None)
+    habit = Habit(name=name)
+    habit.get_habit_from_name()
     habit.delete_habit()
     return jsonify({'message': f'Habit {name} deleted successfully'})
 
 @app.route('/habits/<string:name>', methods=['PUT'])
 def mark_habit_as_completed(name):
     habit = Habit(name=name)
-    habit.get_habit_from_name(name)
+    habit.get_habit_from_name()
     habit.mark_habit_as_completed()
     return jsonify({'message': f'Habit {name} marked as completed'})
 
