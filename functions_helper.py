@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import random
 from habit import Habit
 import json
@@ -60,7 +61,7 @@ def create_initial_habits():
     # TODO: generate random values for habit_tracking for 1 year of tracking of the predefined_habits
     for habit_data in predefined_habits:
         last_updated_at = datetime.now() - timedelta(days=random.randint(1, 10))
-        created_at = last_updated_at - timedelta(days=random.randint(1, 365))
+        created_at = last_updated_at - timedelta(days=random.randint(365, 730))
         max_streak = check_max_streak(habit_data["periodicity"], created_at, last_updated_at)
         if date_check_with_periodicity(habit_data["periodicity"], last_updated_at) != "Streak Expired":
             if max_streak != 0:
@@ -78,41 +79,53 @@ def create_initial_habits():
             last_updated_at=last_updated_at
         )
         habit.create_habit()
+        dates = generate_random_habit_tracking_dates(
+            periodicity=habit_data["periodicity"],
+            created_at=created_at,
+            streak=streak,
+            last_updated_at=last_updated_at,
+            success_rate=habit_data["success_rate"]
+        )
+        print(f"Generating {len(dates)} random dates of tracking data for habit {habit_data['name']}")
+        for date in dates:
+            habit.mark_habit_as_completed(write_date=datetime.fromisoformat(date), is_fake_tracking_data=True)
 
 
-def fill_habit_tracking_data(
-    habit_id: str,
-    name: str,
+def generate_random_habit_tracking_dates(
     periodicity: str,
     created_at: datetime,
     streak: int,
-    last_updated_at: datetime
+    last_updated_at: datetime,
+    success_rate: float = 0.8
 ):
-    
     
     if periodicity == 'D':
         # generate a range of all dates between created_at and last_updated_at
         diff = (last_updated_at - created_at).days
-        dates_list = [(created_at + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(diff)]
-        print(dates_list)
-        pass
-
-    if periodicity == 'W':
+        dates_list = [(created_at + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(diff + 1)]
+    
+    elif periodicity == 'W':
         # generate a range of one date per week between created_at and last_updated_at
-        diff = (last_updated_at - created_at).days // 7
-        dates_list = [(created_at + timedelta(weeks=i)).strftime('%Y-%m-%d') for i in range(diff)]
-        print(dates_list)
-        # TODO: search how to generate a random date in a week
-        pass
-
-    if periodicity == 'M':
+        dates_list = []
+        current_date = created_at
+        while current_date <= last_updated_at:
+            week_start = current_date
+            week_end = min(last_updated_at, week_start + timedelta(days=6))
+            random_date = week_start + timedelta(days=random.randint(0, (week_end - week_start).days))
+            dates_list.append(random_date.strftime('%Y-%m-%d'))
+            current_date = week_end + timedelta(days=1)
+    
+    elif periodicity == 'M':
         # generate a range of one date per month between created_at and last_updated_at
-        diff = (last_updated_at.year - created_at.year) * 12 + last_updated_at.month - created_at.month
-        dates_list = [(created_at + timedelta(months=i)).strftime('%Y-%m-%d') for i in range(diff)]
-        # TODO: timedelta(months=i) doesn't work
-        # TODO: search how to generate a random date in a month
-        print(dates_list)
-        pass
+        dates_list = []
+        current_date = created_at
+        while current_date <= last_updated_at:
+            month_start = current_date
+            next_month = month_start + relativedelta(months=1)
+            month_end = min(last_updated_at, next_month - timedelta(days=1))
+            random_date = month_start + timedelta(days=random.randint(0, (month_end - month_start).days))
+            dates_list.append(random_date.strftime('%Y-%m-%d'))
+            current_date = next_month
 
     # if streak != 0, we need to make sure that streak is reflected in this list of dates
     # after the streak is assured, we need to make sure we break the streak on the date just before the streak is assured
@@ -120,15 +133,26 @@ def fill_habit_tracking_data(
     # all the values are written to habit_tracking, using the uuid and the date
     # TODO: this makes the streak column be redundant, as it can be gotten from a simple count in this table. reconsider habits structure
 
+    if streak == 0:
+        dates_list = dates_list[:-1]  # remove the date closest to today (last date)
+    else:
+        dates_list = dates_list[-streak:]  # keep the last `streak` dates
+
+    # dropout of some dates, based on the success_rate
+    dropout_count = int(len(dates_list) * (1 - success_rate))
+    dropout_indices = random.sample(range(len(dates_list)), dropout_count)
+    dates_list = [date for i, date in enumerate(dates_list) if i not in dropout_indices]
+
+    return dates_list
+    
 
 if __name__ == '__main__':
-    fill_habit_tracking_data(
-        habit_id='test_uuid',
-        name='test_name',
+    generate_random_habit_tracking_dates(
         periodicity='M',
         created_at=datetime(2024,5,1),
         streak=30,
-        last_updated_at=datetime.now()
+        last_updated_at=datetime.now(),
+        dropout_per=0.2
     )
 
 

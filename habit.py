@@ -1,5 +1,6 @@
 from db import Database
 from datetime import datetime
+from typing import Optional
 
 db = Database()
 
@@ -32,15 +33,16 @@ class Habit:
         cur.close()
         print(f"Deleted habit {self.name}")
 
-    def mark_habit_as_completed(self):
+    def mark_habit_as_completed(self, write_date: Optional[datetime] = datetime.now(), is_fake_tracking_data: bool = False):
         cur = db.get_cursor()
-        # TODO: all the calls getting habits by name need to be by id, so we have a common value for habit_tracking
-        cur.execute('UPDATE habits SET streak = streak + 1, last_updated_at = ? WHERE id = ?', 
-                    (datetime.now().isoformat(), self.habit_id))
-        cur.execute('INSERT INTO habit_tracking VALUES(?, ?)', (self.habit_id, datetime.now().isoformat()))
+        if not is_fake_tracking_data:
+            cur.execute('UPDATE habits SET streak = streak + 1, last_updated_at = ? WHERE id = ?', 
+                        (write_date.isoformat(), self.habit_id))
+        cur.execute('INSERT INTO habit_tracking VALUES(?, ?)', (self.habit_id, write_date.isoformat()))
         db.conn.commit()
         cur.close()
-        print(f"Checked off habit {self.name}")
+        if not is_fake_tracking_data:
+            print(f"Marked habit {self.name} as completed")
 
     def get_all_habits(self):
         cur = db.get_cursor()
