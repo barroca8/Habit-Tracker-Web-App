@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 from habit import Habit
 from db import Database
-from datetime import datetime, timedelta
-import random
+from datetime import datetime
 from functions_helper import date_check_with_periodicity, check_max_streak, create_initial_habits
+import uuid
 
 app = Flask(__name__)
 
@@ -42,7 +42,14 @@ def create_habit():
     if name == '':
         return jsonify({'message': 'Habit name cannot be empty'}), 400
     periodicity = data['periodicity']
-    habit = Habit(name=name, periodicity=periodicity, created_at=datetime.now(), streak=0, last_updated_at=datetime.now())
+    habit = Habit(
+        habit_id=uuid.uuid4(), 
+        name=name, 
+        periodicity=periodicity, 
+        created_at=datetime.now(), 
+        streak=0, 
+        last_updated_at=datetime.now()
+    )
     habit.create_habit()
     return jsonify({'message': 'Habit created successfully'})
 
