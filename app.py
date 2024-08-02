@@ -74,6 +74,12 @@ def update_marked_status():
     status = date_check_with_periodicity(periodicity, last_updated_at)
     return jsonify(status)
 
+@app.route('/habits/tracking/<string:habit_id>', methods=['GET'])
+def get_habit_tracking(habit_id):
+    habit = Habit(habit_id=habit_id)
+    tracking_data = habit.get_tracking_data()
+    return jsonify(tracking_data)
+
 @app.route('/streaks/daily', methods=['GET'])
 def get_longest_daily_streak():
     habit = Habit()
@@ -91,3 +97,6 @@ def get_longest_monthly_streak():
     habit = Habit()
     streak = habit.longest_monthly_streak()
     return jsonify(streak)
+
+if __name__ == '__main__':
+    app.run(debug=True)

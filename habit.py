@@ -16,7 +16,6 @@ class Habit:
     def create_habit(self):
         if db.habit_exists(self.habit_id):
             print(f"Habit {self.name} already exists.")
-            # TODO: in this case, show in the frontend that the habit already exists
             return
         cur = db.get_cursor()
         cur.execute('INSERT INTO habits (id, name, periodicity, created_at, streak, last_updated_at) VALUES (?, ?, ?, ?, ?, ?)', 
@@ -51,7 +50,7 @@ class Habit:
         cur.close()
         formatted_habits = [(habit_id, name, self._format_periodicity(periodicity), created_at.split('T')[0], streak, last_updated_at.split('T')[0]) for habit_id, name, periodicity, created_at, streak, last_updated_at in habits]
         return formatted_habits
-    
+
     def get_habit_from_name(self):
         cur = db.get_cursor()
         cur.execute(f"SELECT * FROM habits WHERE LOWER(name) LIKE '%{self.name.lower()}%'")
@@ -77,6 +76,14 @@ class Habit:
         longest_streak = cur.fetchall()
         cur.close()
         return longest_streak
+
+    def get_tracking_data(self):
+        cur = db.get_cursor()
+        cur.execute('SELECT marked_date FROM habit_tracking WHERE habit_id = ? ORDER BY marked_date ASC', (self.habit_id,))
+        tracking_data = cur.fetchall()
+        cur.close()
+        tracking_data = [{'date': date[0], 'completed': True} for date in tracking_data]
+        return tracking_data
 
     def _format_periodicity(self, periodicity):
         return {'D': 'Daily', 'W': 'Weekly', 'M': 'Monthly'}.get(periodicity, periodicity)
