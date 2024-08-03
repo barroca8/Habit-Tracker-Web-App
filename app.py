@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from habit import Habit
 from db import Database
 from datetime import datetime
-from functions_helper import date_check_with_periodicity, check_max_streak, create_initial_habits, generate_tracking_data_dict
+from functions_helper import date_check_with_periodicity, create_initial_habits, generate_tracking_data_dict
 import uuid
 
 app = Flask(__name__)
@@ -50,8 +50,11 @@ def create_habit():
         streak=0, 
         last_updated_at=datetime.now()
     )
-    habit.create_habit()
-    return jsonify({'message': 'Habit created successfully'})
+    success = habit.create_habit()
+    if success:
+        return jsonify({'message': 'Habit created successfully'})
+    if not success:
+        return jsonify({'message': 'Habit already exists'}), 400
 
 @app.route('/habits/<string:name>', methods=['DELETE'])
 def delete_habit(name):

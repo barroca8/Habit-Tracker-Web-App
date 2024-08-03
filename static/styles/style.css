@@ -102,3 +102,7 @@ button:disabled {
     background-color: #7c7b7b;
     color: rgb(0, 0, 0);
 }
+
+.error-message{
+    color: darkred
+}

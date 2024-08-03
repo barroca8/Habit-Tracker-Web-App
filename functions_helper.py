@@ -48,7 +48,7 @@ def check_max_streak(periodicity, created_at, last_updated_at):
         return (last_updated_at.year - created_at.year) * 12 + last_updated_at.month - created_at.month
 
 def create_initial_habits():
-    with open('predefined_habits.json', 'r') as f:
+    with open('test_data/predefined_habits.json', 'r') as f:
         predefined_habits = json.load(f)
 
     for habit_data in predefined_habits:
@@ -70,7 +70,10 @@ def create_initial_habits():
             streak=streak,
             last_updated_at=last_updated_at
         )
-        habit.create_habit()
+        success = habit.create_habit()
+        if not success:
+            print(f"Habit {habit_data['name']} already exists.")
+            continue
         dates = generate_random_habit_tracking_dates(
             periodicity=habit_data["periodicity"],
             created_at=created_at,

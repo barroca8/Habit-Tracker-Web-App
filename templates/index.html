@@ -38,6 +38,7 @@
         async function filterHabits() {
             const periodicity = document.getElementById('filter-periodicity').value;
             fetchHabits(periodicity);
+            fetchStreaks();
         }
 
         async function getButtonStatus(name, periodicity, createdDate, streak, last_updated_at) {
@@ -86,6 +87,8 @@
         async function createHabit() {
             const name = document.getElementById('habit-name').value;
             const periodicity = document.getElementById('habit-periodicity').value;
+            const errorMessageElement = document.getElementById('habit-name-error');
+            errorMessageElement.textContent = ''; // Clear previous error message
             if (!name.trim()) {
                 alert('Habit name is required');
                 return;
@@ -97,8 +100,13 @@
                 },
                 body: JSON.stringify({ name, periodicity })
             });
+            document.getElementById('habit-name').value = ''; // clear input field
             if (response.ok) {
                 fetchHabits();
+                fetchStreaks();
+            }
+            if (response.status === 400) {
+                errorMessageElement.textContent = 'Habit '+ name +' already exists';
             }
         }
 
@@ -106,6 +114,7 @@
             const response = await fetch(`/habits/${name}`, { method: 'DELETE' });
             if (response.ok) {
                 fetchHabits();
+                fetchStreaks();
             }
         }
 
@@ -114,6 +123,7 @@
             if (response.ok) {
                 const periodicity = document.getElementById('filter-periodicity').value;
                 fetchHabits(periodicity);
+                fetchStreaks();
             }
         }
 
@@ -240,6 +250,7 @@
             const response = await fetch('/create_initial_habits', { method: 'POST' });
             if (response.ok) {
                 fetchHabits();
+                fetchStreaks();
             }
         }
 
@@ -247,6 +258,7 @@
             const response = await fetch('/clear_habits_table', { method: 'POST' });
             if (response.ok) {
                 fetchHabits();
+                fetchStreaks();
             }
         }
 
@@ -273,6 +285,7 @@
         </select>
         <button onclick="createHabit()">Create</button>
     </div>
+    <div id="habit-name-error" class="error-message"></div>
     <div>
         <h2>Habits</h2>
         <div>
