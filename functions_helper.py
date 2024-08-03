@@ -116,3 +116,44 @@ def generate_random_habit_tracking_dates(periodicity, created_at, streak, last_u
     dates_list = [date for i, date in enumerate(dates_list) if i not in dropout_indices]
 
     return dates_list
+
+
+def generate_tracking_data_dict(tracking_data, periodicity):
+    # strings into datetime objects
+    dates = [datetime.strptime(date, '%Y-%m-%d') for date in tracking_data]
+    
+    # initialize the dictionary
+    tracking_dict = {}
+    for date in dates:
+        year = date.year
+        if year not in tracking_dict:
+            # Determine if the year is a leap year
+            is_leap_year = (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
+            days_in_year = 366 if is_leap_year else 365
+            tracking_dict[year] = [0] * days_in_year
+    
+    # update the dictionary based on periodicity
+    for date in dates:
+        year = date.year
+        start_of_year = datetime(year, 1, 1)
+        day_of_year = (date - start_of_year).days
+        
+        if periodicity == 'D':
+            tracking_dict[year][day_of_year] = 1
+        elif periodicity == 'W':
+            start_of_week = date - timedelta(days=date.weekday())
+            end_of_week = start_of_week + timedelta(days=6)
+            for i in range((start_of_week - start_of_year).days, (end_of_week - start_of_year).days + 1):
+                if 0 <= i < len(tracking_dict[year]):
+                    tracking_dict[year][i] = 1
+        elif periodicity == 'M':
+            start_of_month = datetime(year, date.month, 1)
+            if date.month == 12:
+                end_of_month = datetime(year + 1, 1, 1) - timedelta(days=1)
+            else:
+                end_of_month = datetime(year, date.month + 1, 1) - timedelta(days=1)
+            for i in range((start_of_month - start_of_year).days, (end_of_month - start_of_year).days + 1):
+                if 0 <= i < len(tracking_dict[year]):
+                    tracking_dict[year][i] = 1
+    
+    return tracking_dict

@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habit Tracker</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
+    <style>
+        .tracking-square {
+            width: 15px;
+            height: 15px;
+            margin: 1px;
+            display: inline-block;
+            background-color: #ebedf0;
+        }
+
+        .tracking-square.completed {
+            background-color: #4caf50;
+        }
+
+        .tracking-square.not-completed {
+            background-color: #ffdddd;
+        }
+
+        .month-label {
+            display: inline-block;
+            width: 50px;
+            text-align: right;
+            margin-right: 5px;
+        }
+
+        .year-title {
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+    </style>
     <script>
         async function fetchHabits(periodicity = '') {
             const response = await fetch('/habits');
@@ -118,7 +147,6 @@
             }
         }
 
-        // TODO: change this function
         async function fetchHabitTracking(habit_id, periodicity) {
             const response = await fetch(`/habits/tracking/${habit_id}`);
             if (!response.ok) {
@@ -126,22 +154,49 @@
                 return;
             }
             const trackingData = await response.json();
-            renderTrackingCalendar(trackingData, periodicity, habit_id);
+            renderTrackingCalendar(trackingData, habit_id);
         }
 
-        // TODO: change this function
-        function renderTrackingCalendar(data, periodicity, habit_id) {
+        function renderTrackingCalendar(data, habit_id) {
             const container = document.getElementById('tracking-calendar');
             container.innerHTML = '';  // Clear previous calendar
-            const squaresPerPeriod = periodicity === 'D' ? 365 : (periodicity === 'W' ? 52 : 12);
 
-            for (let i = 0; i < squaresPerPeriod; i++) {
-                const square = document.createElement('div');
-                square.className = 'tracking-square';
-                if (data[i] && data[i].completed) {
-                    square.classList.add('completed');
+            for (const [year, days] of Object.entries(data)) {
+                const yearContainer = document.createElement('div');
+                yearContainer.classList.add('year-container');
+                const yearTitle = document.createElement('div');
+                yearTitle.classList.add('year-title');
+                yearTitle.textContent = year;
+                yearContainer.appendChild(yearTitle);
+
+                const months = [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                ];
+                let dayIndex = 0;
+
+                for (let month = 0; month < 12; month++) {
+                    const monthContainer = document.createElement('div');
+                    const monthLabel = document.createElement('div');
+                    monthLabel.classList.add('month-label');
+                    monthLabel.textContent = months[month];
+                    monthContainer.appendChild(monthLabel);
+
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    for (let day = 0; day < daysInMonth; day++) {
+                        const square = document.createElement('div');
+                        square.className = 'tracking-square';
+                        if (days[dayIndex] == 1) {
+                            square.classList.add('completed');
+                        } else {
+                            square.classList.add('not-completed');
+                        }
+                        monthContainer.appendChild(square);
+                        dayIndex++;
+                    }
+                    yearContainer.appendChild(monthContainer);
                 }
-                container.appendChild(square);
+                container.appendChild(yearContainer);
             }
         }
 

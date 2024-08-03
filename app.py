@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from habit import Habit
 from db import Database
 from datetime import datetime
-from functions_helper import date_check_with_periodicity, check_max_streak, create_initial_habits
+from functions_helper import date_check_with_periodicity, check_max_streak, create_initial_habits, generate_tracking_data_dict
 import uuid
 
 app = Flask(__name__)
@@ -77,7 +77,8 @@ def update_marked_status():
 @app.route('/habits/tracking/<string:habit_id>', methods=['GET'])
 def get_habit_tracking(habit_id):
     habit = Habit(habit_id=habit_id)
-    tracking_data = habit.get_tracking_data()
+    tracking_data, periodicity = habit.get_tracking_data()
+    tracking_data = generate_tracking_data_dict(tracking_data, periodicity)
     return jsonify(tracking_data)
 
 @app.route('/streaks/daily', methods=['GET'])

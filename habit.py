@@ -80,10 +80,12 @@ class Habit:
     def get_tracking_data(self):
         cur = db.get_cursor()
         cur.execute('SELECT marked_date FROM habit_tracking WHERE habit_id = ? ORDER BY marked_date ASC', (self.habit_id,))
-        tracking_data = cur.fetchall()
+        tracking_data = [date[0].split('T')[0] for date in cur.fetchall()]
         cur.close()
-        tracking_data = [{'date': date[0], 'completed': True} for date in tracking_data]
-        return tracking_data
+        cur = db.get_cursor()
+        cur.execute('SELECT periodicity FROM habits WHERE id = ?', (self.habit_id,))
+        periodicity = cur.fetchone()[0]
+        return tracking_data, periodicity
 
     def _format_periodicity(self, periodicity):
         return {'D': 'Daily', 'W': 'Weekly', 'M': 'Monthly'}.get(periodicity, periodicity)
