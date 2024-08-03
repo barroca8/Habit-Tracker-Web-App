@@ -97,3 +97,8 @@ button:disabled {
     margin-top: 20px;
     font-size: 1.5em;
 }
+
+.selected-habit {
+    background-color: #7c7b7b;
+    color: rgb(0, 0, 0);
+}
