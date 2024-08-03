@@ -1,7 +1,7 @@
 [
-    {"name": "Brush Teeth", "periodicity": "D"},
-    {"name": "Exercise", "periodicity": "D"},
-    {"name": "Read Book", "periodicity": "W"},
-    {"name": "Call Family", "periodicity": "W"},
-    {"name": "Grocery Shopping", "periodicity": "M"}
+    {"name": "Brush Teeth", "periodicity": "D", "success_rate": 0.95},
+    {"name": "Exercise", "periodicity": "D", "success_rate": 0.5},
+    {"name": "Read Book", "periodicity": "W", "success_rate": 0.2},
+    {"name": "Call Family", "periodicity": "W", "success_rate": 0.6},
+    {"name": "Grocery Shopping", "periodicity": "M", "success_rate": 0.8}
 ]

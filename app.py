@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 from habit import Habit
 from db import Database
-from datetime import datetime, timedelta
-import random
-from functions_helper import date_check_with_periodicity, check_max_streak, create_initial_habits
+from datetime import datetime
+from functions_helper import date_check_with_periodicity, check_max_streak, create_initial_habits, generate_tracking_data_dict
+import uuid
 
 app = Flask(__name__)
 
@@ -42,20 +42,28 @@ def create_habit():
     if name == '':
         return jsonify({'message': 'Habit name cannot be empty'}), 400
     periodicity = data['periodicity']
-    habit = Habit(name=name, periodicity=periodicity, created_at=datetime.now(), streak=0, last_updated_at=datetime.now())
+    habit = Habit(
+        habit_id=uuid.uuid4(), 
+        name=name, 
+        periodicity=periodicity, 
+        created_at=datetime.now(), 
+        streak=0, 
+        last_updated_at=datetime.now()
+    )
     habit.create_habit()
     return jsonify({'message': 'Habit created successfully'})
 
 @app.route('/habits/<string:name>', methods=['DELETE'])
 def delete_habit(name):
-    habit = Habit(name=name, periodicity=None, created_at=None, streak=None, last_updated_at=None)
+    habit = Habit(name=name)
+    habit.get_habit_from_name()
     habit.delete_habit()
     return jsonify({'message': f'Habit {name} deleted successfully'})
 
 @app.route('/habits/<string:name>', methods=['PUT'])
 def mark_habit_as_completed(name):
     habit = Habit(name=name)
-    habit.get_habit_from_name(name)
+    habit.get_habit_from_name()
     habit.mark_habit_as_completed()
     return jsonify({'message': f'Habit {name} marked as completed'})
 
@@ -65,6 +73,13 @@ def update_marked_status():
     last_updated_at = request.args.get('last_updated_at')
     status = date_check_with_periodicity(periodicity, last_updated_at)
     return jsonify(status)
+
+@app.route('/habits/tracking/<string:habit_id>', methods=['GET'])
+def get_habit_tracking(habit_id):
+    habit = Habit(habit_id=habit_id)
+    tracking_data, periodicity = habit.get_tracking_data()
+    tracking_data = generate_tracking_data_dict(tracking_data, periodicity)
+    return jsonify(tracking_data)
 
 @app.route('/streaks/daily', methods=['GET'])
 def get_longest_daily_streak():
@@ -83,3 +98,6 @@ def get_longest_monthly_streak():
     habit = Habit()
     streak = habit.longest_monthly_streak()
     return jsonify(streak)
+
+if __name__ == '__main__':
+    app.run(debug=True)

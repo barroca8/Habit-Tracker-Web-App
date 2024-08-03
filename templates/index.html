@@ -4,27 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habit Tracker</title>
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
     <script>
         async function fetchHabits(periodicity = '') {
             const response = await fetch('/habits');
+            if (!response.ok) {
+                console.error("Failed to fetch habits.");
+                return;
+            }
             let habits = await response.json();
 
             if (periodicity !== '') {
-                habits = habits.filter(habit => habit[1][0] === periodicity);
+                habits = habits.filter(habit => habit[2][0] === periodicity);
             }
 
             const tableBody = document.getElementById('habits-table-body');
+            const habitNamesList = document.getElementById('habit-names-list');
             tableBody.innerHTML = '';
+            habitNamesList.innerHTML = '';
 
             habits.forEach(habit => {
-                const name = habit[0];
-                const periodicity = habit[1];
-                const createdDate = habit[2];
-                const streak = habit[3];
-                const lastUpdatedDate = habit[4];
-                getButtonStatus(name, periodicity, createdDate, streak, lastUpdatedDate);
-                fetchStreaks();
+                const id = habit[0];
+                const name = habit[1];
+                const periodicity = habit[2];
+                const createdDate = habit[3];
+                const streak = habit[4];
+                const lastUpdatedDate = habit[5];
+                getButtonStatus(id, name, periodicity, createdDate, streak, lastUpdatedDate);
+                appendHabitNameToList(id, name, periodicity);
             });
         }
 
@@ -33,8 +40,7 @@
             fetchHabits(periodicity);
         }
 
-        async function getButtonStatus(name, periodicity, createdDate, streak, last_updated_at) {
-            // periodicity[0] is used to get the first character of the periodicity string (D, W, M)
+        async function getButtonStatus(habit_id, name, periodicity, createdDate, streak, last_updated_at) {
             const today = new Date().toISOString().slice(0, 10);
             const response = await fetch(`/habits/check/?periodicity=${periodicity[0]}&last_updated_at=${last_updated_at}`);
             const status = await response.json();
@@ -50,10 +56,11 @@
             } else {
                 buttonHTML = `<button onclick="markHabitAsCompleted('${name}')">Mark as Completed</button>`;
             }
-        
+
             const tableBody = document.getElementById('habits-table-body');
             const row = document.createElement('tr');
             row.innerHTML = `
+                <td>${habit_id}</td>
                 <td>${name}</td>
                 <td>${periodicity}</td>
                 <td>${createdDate}</td>
@@ -111,6 +118,71 @@
             }
         }
 
+        async function fetchHabitTracking(habit_id, periodicity) {
+            const response = await fetch(`/habits/tracking/${habit_id}`);
+            if (!response.ok) {
+                console.error("Failed to fetch habit tracking data.");
+                return;
+            }
+            const trackingData = await response.json();
+            renderTrackingCalendar(trackingData, habit_id);
+        }
+
+        function renderTrackingCalendar(data, habit_id) {
+            const container = document.getElementById('tracking-calendar');
+            container.innerHTML = '';  // Clear previous calendar
+
+            for (const [year, days] of Object.entries(data)) {
+                const yearContainer = document.createElement('div');
+                yearContainer.classList.add('year-container');
+                const yearTitle = document.createElement('div');
+                yearTitle.classList.add('year-title');
+                yearTitle.textContent = year;
+                yearContainer.appendChild(yearTitle);
+
+                const months = [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                ];
+                let dayIndex = 0;
+
+                for (let month = 0; month < 12; month++) {
+                    const monthContainer = document.createElement('div');
+                    const monthLabel = document.createElement('div');
+                    monthLabel.classList.add('month-label');
+                    monthLabel.textContent = months[month];
+                    monthContainer.appendChild(monthLabel);
+
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    for (let day = 0; day < daysInMonth; day++) {
+                        const square = document.createElement('div');
+                        square.className = 'tracking-square';
+                        if (days[dayIndex] == 1) {
+                            square.classList.add('completed');
+                        } else {
+                            square.classList.add('not-completed');
+                        }
+                        monthContainer.appendChild(square);
+                        dayIndex++;
+                    }
+                    yearContainer.appendChild(monthContainer);
+                }
+                container.appendChild(yearContainer);
+            }
+        }
+
+        function appendHabitNameToList(id, name, periodicity) {
+            const listContainer = document.getElementById('habit-names-list');
+            const listItem = document.createElement('li');
+            listItem.textContent = name;
+            listItem.onclick = () => selectHabit(id, periodicity);
+            listContainer.appendChild(listItem);
+        }
+
+        async function selectHabit(id, periodicity) {
+            fetchHabitTracking(id, periodicity);
+        }
+
         async function fetchStreaks() {
             const dailyResponse = await fetch('/streaks/daily');
             const weeklyResponse = await fetch('/streaks/weekly');
@@ -125,40 +197,22 @@
             document.getElementById('monthly-streak').textContent = monthlyStreak.length > 0 ? `Longest monthly streak: ${monthlyStreak[0][0]} with ${monthlyStreak[0][1]} months` : 'No monthly streaks found';
         }
 
-        // async function filterHabits() {
-        //     const periodicity = document.getElementById('filter-periodicity').value;
-        //     if (periodicity === '') {
-        //         fetchHabits();
-        //         return;
-        //     }
-        //     const response = await fetch('/habits');
-        //     const habits = await response.json();
-        //     const filteredHabits = habits.filter(habit => habit[1][0] === periodicity);
-        //     console.log(filteredHabits)
-        //     const tableBody = document.getElementById('habits-table-body');
-        //     tableBody.innerHTML = '';
-        //     filteredHabits.forEach(habit => {
-        //         const row = document.createElement('tr');
-        //         row.innerHTML = `
-        //             <td>${habit[0]}</td>
-        //             <td>${habit[1]}</td>
-        //             <td>${habit[2]}</td>
-        //             <td>${habit[3]}</td>
-        //             <td>${habit[4]}</td>
-        //             <td><button onclick="deleteHabit('${habit[0]}')">Delete</button></td>
-        //         `;
-        //         tableBody.appendChild(row);
-        //     });
-        // }
-
-        // TODO: make search longest streak be a dropdown list of habits, right now if we search "a" it shows a streak for a random habit with the letter "a" in it
         async function searchLongestStreak() {
             const name = document.getElementById('search-name').value;
+            if (name === '') {
+                document.getElementById('search-results').textContent = '';
+                document.getElementById('longest-streak-info').textContent = '';
+                return;
+            }
             const response = await fetch(`/habits/${name}`);
+            if (!response.ok) {
+                console.error("Failed to fetch habit.");
+                return;
+            }
             const habit = await response.json();
             const longestStreakInfo = document.getElementById('longest-streak-info');
             if (habit) {
-                let freqType = habit[1];
+                let freqType = habit[2];
                 if (freqType[0] === 'D') {
                     freqType = 'day(s)';
                 } else if (freqType[0] === 'W') {
@@ -166,7 +220,7 @@
                 } else {
                     freqType = 'month(s)';
                 }
-                longestStreakInfo.textContent = `Current streak for ${habit[0]}: ${habit[3]} ${freqType}`;
+                longestStreakInfo.textContent = `Current streak for ${habit[1]}: ${habit[4]} ${freqType}`;
             } else {
                 longestStreakInfo.textContent = `Habit ${name} not found`;
             }
@@ -190,6 +244,7 @@
             fetchHabits();
             fetchStreaks();
         };
+
     </script>
 </head>
 <body>
@@ -222,6 +277,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Name</th>
                     <th>Periodicity</th>
                     <th>Created At</th>
@@ -243,9 +299,14 @@
     </div>
     <div>
         <h2>Search Longest Streak</h2>
-        <input type="text" id="search-name" placeholder="Habit name">
-        <button onclick="searchLongestStreak()">Search</button>
+        <input type="text" id="search-name" placeholder="Habit name" onkeyup="searchLongestStreak()">
+        <div id="search-results"></div>
         <p id="longest-streak-info"></p>
+    </div>
+    <div>
+        <h2>Tracking Calendar</h2>
+        <ul id="habit-names-list"></ul>
+        <div id="tracking-calendar"></div>
     </div>
 </body>
 </html>

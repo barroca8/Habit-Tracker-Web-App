@@ -34,3 +34,66 @@ button:disabled {
     background-color: #436b1b; /* Darker green */
     cursor: not-allowed; /* Shows a forbidden sign on hover */
 }
+
+.tracking-square {
+    width: 15px;
+    height: 15px;
+    margin: 2px;
+    display: inline-block;
+    background-color: #ebedf0;
+}
+
+.tracking-square.completed {
+    background-color: #4caf50;
+}
+
+#tracking-calendar {
+    display: flex;
+    flex-wrap: wrap;
+    width: 660px;  /* 15px * 7 days * 7 weeks + some margin */
+}
+
+#habit-names-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#habit-names-list li {
+    cursor: pointer;
+    margin: 5px 0;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+#habit-names-list li:hover {
+    background-color: #f0f0f0;
+}
+
+.tracking-square {
+    width: 15px;
+    height: 15px;
+    margin: 1px;
+    display: inline-block;
+    background-color: #ebedf0;
+}
+
+.tracking-square.completed {
+    background-color: #4caf50;
+}
+
+.tracking-square.not-completed {
+    background-color: #dfdddd;
+}
+
+.month-label {
+    display: inline-block;
+    width: 50px;
+    text-align: right;
+    margin-right: 5px;
+}
+
+.year-title {
+    margin-top: 20px;
+    font-size: 1.5em;
+}
