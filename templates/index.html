@@ -30,7 +30,7 @@
                 const createdDate = habit[3];
                 const streak = habit[4];
                 const lastUpdatedDate = habit[5];
-                getButtonStatus(id, name, periodicity, createdDate, streak, lastUpdatedDate);
+                getButtonStatus(name, periodicity, createdDate, streak, lastUpdatedDate);
                 appendHabitNameToList(id, name, periodicity);
             });
         }
@@ -40,7 +40,7 @@
             fetchHabits(periodicity);
         }
 
-        async function getButtonStatus(habit_id, name, periodicity, createdDate, streak, last_updated_at) {
+        async function getButtonStatus(name, periodicity, createdDate, streak, last_updated_at) {
             const today = new Date().toISOString().slice(0, 10);
             const response = await fetch(`/habits/check/?periodicity=${periodicity[0]}&last_updated_at=${last_updated_at}`);
             const status = await response.json();
@@ -60,7 +60,6 @@
             const tableBody = document.getElementById('habits-table-body');
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${habit_id}</td>
                 <td>${name}</td>
                 <td>${periodicity}</td>
                 <td>${createdDate}</td>
@@ -131,7 +130,14 @@
         function renderTrackingCalendar(data, habit_id) {
             const container = document.getElementById('tracking-calendar');
             container.innerHTML = '';  // Clear previous calendar
-
+            console.log(data);
+            console.log(Object.keys(data).length);
+            if (Object.keys(data).length === 0) {
+                const noData = document.createElement('p');
+                noData.textContent = 'Sorry, no data available yet for this habit';
+                container.appendChild(noData);
+                return;
+            }
             for (const [year, days] of Object.entries(data)) {
                 const yearContainer = document.createElement('div');
                 yearContainer.classList.add('year-container');
@@ -277,7 +283,6 @@
         <table>
             <thead>
                 <tr>
-                    <th>Id</th>
                     <th>Name</th>
                     <th>Periodicity</th>
                     <th>Created At</th>
