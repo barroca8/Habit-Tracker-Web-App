@@ -179,11 +179,17 @@
             const listContainer = document.getElementById('habit-names-list');
             const listItem = document.createElement('li');
             listItem.textContent = name;
-            listItem.onclick = () => selectHabit(id, periodicity);
+            listItem.onclick = () => selectHabit(id, periodicity, listItem);
             listContainer.appendChild(listItem);
         }
 
-        async function selectHabit(id, periodicity) {
+        async function selectHabit(id, periodicity, listItem) {
+            // remove the selected-habit class from all list items
+            const listContainer = document.getElementById('habit-names-list');
+            Array.from(listContainer.children).forEach(item => item.classList.remove('selected-habit'));
+            // add the selected-habit class to the clicked list item
+            listItem.classList.add('selected-habit');
+
             fetchHabitTracking(id, periodicity);
         }
 
