@@ -69,3 +69,31 @@ button:disabled {
 #habit-names-list li:hover {
     background-color: #f0f0f0;
 }
+
+.tracking-square {
+    width: 15px;
+    height: 15px;
+    margin: 1px;
+    display: inline-block;
+    background-color: #ebedf0;
+}
+
+.tracking-square.completed {
+    background-color: #4caf50;
+}
+
+.tracking-square.not-completed {
+    background-color: #dfdddd;
+}
+
+.month-label {
+    display: inline-block;
+    width: 50px;
+    text-align: right;
+    margin-right: 5px;
+}
+
+.year-title {
+    margin-top: 20px;
+    font-size: 1.5em;
+}
