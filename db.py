@@ -31,9 +31,9 @@ class Database:
     def get_cursor(self):
         return self.conn.cursor()
     
-    def habit_exists(self, habit_id):
+    def habit_exists(self, habit_name):
         cur = self.get_cursor()
-        cur.execute(f"SELECT 1 FROM habits WHERE id = '{str(habit_id)}'")
+        cur.execute(f"SELECT 1 FROM habits WHERE name = '{habit_name}'")
         row = cur.fetchone()
         cur.close()
         return row is not None

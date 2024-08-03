@@ -14,15 +14,16 @@ class Habit:
         self.last_updated_at = last_updated_at
 
     def create_habit(self):
-        if db.habit_exists(self.habit_id):
+        if db.habit_exists(self.name):
             print(f"Habit {self.name} already exists.")
-            return
+            return False
         cur = db.get_cursor()
         cur.execute('INSERT INTO habits (id, name, periodicity, created_at, streak, last_updated_at) VALUES (?, ?, ?, ?, ?, ?)', 
                     (self.habit_id, self.name.title(), self.periodicity, self.created_at.isoformat(), self.streak, self.last_updated_at.isoformat()))
         db.conn.commit()
         cur.close()
         print(f"Created habit {self.name} with periodicity {self.periodicity}")
+        return True
 
     def delete_habit(self):
         cur = db.get_cursor()
