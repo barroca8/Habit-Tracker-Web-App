@@ -130,8 +130,6 @@
         function renderTrackingCalendar(data, habit_id) {
             const container = document.getElementById('tracking-calendar');
             container.innerHTML = '';  // Clear previous calendar
-            console.log(data);
-            console.log(Object.keys(data).length);
             if (Object.keys(data).length === 0) {
                 const noData = document.createElement('p');
                 noData.textContent = 'Sorry, no data available yet for this habit';
