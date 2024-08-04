@@ -68,7 +68,7 @@
                 <td>${last_updated_at}</td>
                 <td>
                     ${buttonHTML}
-                    <button onclick="deleteHabit('${name}')">Delete</button>
+                    <button class="delete-button" onclick="deleteHabit('${name}')">Delete</button>
                 </td>
             `;
             tableBody.appendChild(row);
@@ -259,6 +259,8 @@
             if (response.ok) {
                 fetchHabits();
                 fetchStreaks();
+                // clear tracking calendar
+                document.getElementById('tracking-calendar').innerHTML = '';
             }
         }
 
@@ -327,8 +329,10 @@
     </div>
     <div>
         <h2>Tracking Calendar</h2>
-        <ul id="habit-names-list"></ul>
-        <div id="tracking-calendar"></div>
+        <div id="tracking-calendar-container">
+            <ul id="habit-names-list"></ul>
+            <div id="tracking-calendar"></div>
+        </div>
     </div>
 </body>
 </html>

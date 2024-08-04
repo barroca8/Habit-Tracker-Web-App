@@ -30,9 +30,21 @@ button:hover {
     background-color: #45a049;
 }
 
+.delete-button {
+    background-color: #8B0000;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #B22222;
+}
+
 button:disabled {
-    background-color: #436b1b; /* Darker green */
-    cursor: not-allowed; /* Shows a forbidden sign on hover */
+    background-color: #436b1b;
+    cursor: not-allowed; /* shows a forbidden sign on hover */
 }
 
 .tracking-square {
@@ -105,4 +117,17 @@ button:disabled {
 
 .error-message{
     color: darkred
+}
+
+#tracking-calendar-container {
+    display: flex;
+}
+
+#habit-names-list {
+    margin-right: 20px; /* Adjust the space between the list and the calendar as needed */
+    width: 200px; /* Adjust the width as needed */
+}
+
+#tracking-calendar {
+    flex-grow: 1; /* This will make the calendar take the remaining space */
 }
