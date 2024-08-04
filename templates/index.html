@@ -6,6 +6,25 @@
     <title>Habit Tracker</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+
+            themeToggle.addEventListener('change', () => {
+                body.classList.add('transition');
+                if (themeToggle.checked) {
+                    body.classList.remove('light-mode');
+                    body.classList.add('dark-mode');
+                } else {
+                    body.classList.remove('dark-mode');
+                    body.classList.add('light-mode');
+                }
+                window.setTimeout(() => {
+                    body.classList.remove('transition');
+                }, 300); // Match this duration with the CSS transition duration
+            });
+        });
+
         async function fetchHabits(periodicity = '') {
             const response = await fetch('/habits');
             if (!response.ok) {
@@ -271,11 +290,17 @@
 
     </script>
 </head>
-<body>
+<body class="light-mode">
     <h1>Habit Tracker</h1>
+    <div class="toggle-switch">
+        <span class="icon">☀️</span>
+        <input type="checkbox" id="theme-toggle">
+        <label for="theme-toggle"></label>
+        <span class="icon">🌙</span>
+    </div>
     <div>
         <button onclick="createInitialHabits()">Create Initial Habits</button>
-        <button onclick="clearHabitsTable()">Clear Habits Table</button>
+        <button onclick="clearHabitsTable()" class="clear-habits-button">Clear Habits Table</button>
     </div>
     <div>
         <h2>Create Habit</h2>

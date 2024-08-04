@@ -8,6 +8,16 @@ table {
     border-collapse: collapse;
 }
 
+body.dark-mode table thead th {
+    background-color: #313030; 
+    color: white;
+}
+
+body.light-mode table thead th {
+    background-color: lightgray;
+    color: black;
+}
+
 th, td {
     border: 1px solid #ddd;
     padding: 8px;
@@ -33,12 +43,18 @@ button:hover {
 .delete-button {
     background-color: #8B0000;
     color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
 }
 
 .delete-button:hover {
+    background-color: #B22222;
+}
+
+.clear-habits-button {
+    background-color: #8B0000;
+    color: white; 
+}
+
+.clear-habits-button:hover {
     background-color: #B22222;
 }
 
@@ -124,10 +140,95 @@ button:disabled {
 }
 
 #habit-names-list {
-    margin-right: 20px; /* Adjust the space between the list and the calendar as needed */
-    width: 200px; /* Adjust the width as needed */
+    margin-right: 20px;
+    width: 200px;
 }
 
 #tracking-calendar {
-    flex-grow: 1; /* This will make the calendar take the remaining space */
+    flex-grow: 1; /* this makes the calendar take the remaining space */
+}
+
+/* default (light mode) styles */
+body.light-mode {
+    background-color: white;
+    color: black;
+}
+
+/* dark mode styles */
+body.dark-mode {
+    background-color: #1f1f1f;
+    color: white;
+}
+
+.toggle-switch {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-switch input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-switch label {
+    background-color: #ccc;
+    border-radius: 34px;
+    cursor: pointer;
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 50px;
+}
+
+.toggle-switch label:before {
+    content: "";
+    background-color: white;
+    border-radius: 50%;
+    height: 20px;
+    left: 2px;
+    position: absolute;
+    top: 2px;
+    transition: 0.3s;
+    width: 20px;
+}
+
+.toggle-switch input[type="checkbox"]:checked + label {
+    background-color: #1f1f1f;
+}
+
+.toggle-switch input[type="checkbox"]:checked + label:before {
+    transform: translateX(26px);
+}
+
+.toggle-switch .icon {
+    font-size: 18px;
+    margin: 0 5px;
+}
+
+.toggle-switch label:before {
+    content: "";
+    background-color: white;
+    border-radius: 50%;
+    height: 20px;
+    left: 2px;
+    position: absolute;
+    top: 2px;
+    transition: transform 0.3s ease;
+    width: 20px;
+}
+
+.toggle-switch input[type="checkbox"]:checked + label:before {
+    transform: translateX(26px);
+}
+
+body.dark-mode #habit-names-list li:hover {
+    background-color: #313030;
+    color: white;
+}
+
+body.light-mode #habit-names-list li:hover {
+    background-color: lightgray;
+    color: black;
 }
