@@ -10,7 +10,7 @@ To get this app up and running, these are the steps that you have to take:
 
 To git clone the repo, this is what you should run:
 ```
-git clone git@
+git clone https://github.com/barroca8/Habit-Tracker-Web-App
 ```
 After having the repo on your machine, you should make sure you have the requirements installed.
 Assuming you have pip installed:
