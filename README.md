@@ -2,15 +2,24 @@
 
 #### This is a Habit Tracker Web App powered by a Flask server
 
----------------------------------------
-
 ## Getting started
 
 To get this app up and running, these are the steps that you have to take:
 
-### TODO: add git clone, and pip install requirements
+### 1. Install
 
-### 1. Editing the default habits (Optional):
+To git clone the repo, this is what you should run:
+```
+git clone git@
+```
+After having the repo on your machine, you should make sure you have the requirements installed.
+Assuming you have pip installed:
+```
+$ pip install -r requirements.txt
+```
+If you don't have pip, you can install the libraries on `requirements.txt` one by one by following [this step by step tutorial](https://www.geeksforgeeks.org/how-to-install-python-libraries-without-using-the-pip-command/) 
+
+### 2. Editing the default habits (Optional):
 
 If you go to `/test_data/predefined_habits.json` , you will find 5 habits in the following format, that you can edit, add and remove:
 
@@ -31,7 +40,7 @@ Each habit of this list will be created the following way:
 - a random date between 1 year ago and 2 years ago will be chosen as start date for this habit
 - a random date between yesterday and 10 days ago will be choses as last update date (last time habit was completed)
 
-### 2. Getting the server started
+### 3. Getting the server started
 
 Assuming you have python installed already, all you have to do is run:
 ```
@@ -39,7 +48,7 @@ python main.py
 ```
 And your app will run on `http://127.0.0.1:5000`
 
-### 3. Using the web app
+### 4. Using the web app
 
 - **"Create Initial Habits" button**: Creates the habits defined in `/test_data/predefined_habits.json`, and adds them to the database
 - **"Clear Habits Table" button**: Deletes all data of all habits
