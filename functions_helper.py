@@ -6,6 +6,15 @@ import json
 import uuid
 
 def day_check(last_updated_at):
+    """
+    Check if the last updated date is the same as today, one day before today, or earlier.
+
+    Parameters:
+    last_updated_at (datetime): The last updated date of the habit.
+
+    Returns:
+    str: "Same", "Valid Date", or "Streak Expired" based on the date comparison.
+    """
     if last_updated_at.date() == datetime.now().date():
         return "Same"
     elif last_updated_at.date() + timedelta(days=1) == datetime.now().date():
@@ -14,6 +23,15 @@ def day_check(last_updated_at):
         return "Streak Expired"
 
 def week_check(last_updated_at):
+    """
+    Check if the last updated date is the same week as today, one week before today, or earlier.
+
+    Parameters:
+    last_updated_at (datetime): The last updated date of the habit.
+
+    Returns:
+    str: "Same", "Valid", or "Streak Expired" based on the date comparison.
+    """
     if last_updated_at.isocalendar()[1] == datetime.now().isocalendar()[1] and last_updated_at.year == datetime.now().year:
         return "Same"
     elif last_updated_at.isocalendar()[1] + 1 == datetime.now().isocalendar()[1] and last_updated_at.year == datetime.now().year:
@@ -22,6 +40,15 @@ def week_check(last_updated_at):
         return "Streak Expired"
 
 def month_check(last_updated_at):
+    """
+    Check if the last updated date is the same month as today, one month before today, or earlier.
+
+    Parameters:
+    last_updated_at (datetime): The last updated date of the habit.
+
+    Returns:
+    str: "Same", "Valid", or "Streak Expired" based on the date comparison.
+    """
     if last_updated_at.month == datetime.now().month and last_updated_at.year == datetime.now().year:
         return "Same"
     elif last_updated_at.month + 1 == datetime.now().month + 1 and last_updated_at.year == datetime.now().year:
@@ -30,6 +57,16 @@ def month_check(last_updated_at):
         return "Streak Expired"
 
 def date_check_with_periodicity(periodicity, last_updated_at):
+    """
+    Check the date with respect to the given periodicity.
+
+    Parameters:
+    periodicity (str): The periodicity of the habit ('D', 'W', 'M').
+    last_updated_at (datetime): The last updated date of the habit.
+
+    Returns:
+    str: The status of the habit based on the date check.
+    """
     if not isinstance(last_updated_at, datetime):
         last_updated_at = datetime.fromisoformat(last_updated_at)
     if periodicity == 'D':
@@ -40,6 +77,17 @@ def date_check_with_periodicity(periodicity, last_updated_at):
         return month_check(last_updated_at)
 
 def check_max_streak(periodicity, created_at, last_updated_at):
+    """
+    Calculate the maximum streak based on periodicity.
+
+    Parameters:
+    periodicity (str): The periodicity of the habit ('D', 'W', 'M').
+    created_at (datetime): The creation date of the habit.
+    last_updated_at (datetime): The last updated date of the habit.
+
+    Returns:
+    int: The maximum streak.
+    """
     if periodicity == 'D':
         return (last_updated_at - created_at).days
     elif periodicity == 'W':
@@ -48,6 +96,7 @@ def check_max_streak(periodicity, created_at, last_updated_at):
         return (last_updated_at.year - created_at.year) * 12 + last_updated_at.month - created_at.month
 
 def create_initial_habits():
+    """Create initial habits from predefined data."""
     with open('test_data/predefined_habits.json', 'r') as f:
         predefined_habits = json.load(f)
 
@@ -86,6 +135,19 @@ def create_initial_habits():
             habit.mark_habit_as_completed(write_date=datetime.fromisoformat(date), is_fake_tracking_data=True)
 
 def generate_random_habit_tracking_dates(periodicity, created_at, streak, last_updated_at, success_rate=0.8):
+    """
+    Generate random tracking dates based on periodicity and success rate.
+
+    Parameters:
+    periodicity (str): The periodicity of the habit ('D', 'W', 'M').
+    created_at (datetime): The creation date of the habit.
+    streak (int): The current streak of the habit.
+    last_updated_at (datetime): The last updated date of the habit.
+    success_rate (float): The success rate of the habit.
+
+    Returns:
+    list: A list of dates when the habit was tracked.
+    """
     if periodicity == 'D':
         diff = (last_updated_at - created_at).days
         dates_list = [(created_at + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(diff + 1)]
@@ -120,22 +182,27 @@ def generate_random_habit_tracking_dates(periodicity, created_at, streak, last_u
 
     return dates_list
 
-
 def generate_tracking_data_dict(tracking_data, periodicity):
-    # strings into datetime objects
+    """
+    Generate a dictionary of tracking data based on periodicity.
+
+    Parameters:
+    tracking_data (list): A list of tracking dates.
+    periodicity (str): The periodicity of the habit ('D', 'W', 'M').
+
+    Returns:
+    dict: A dictionary with years as keys and tracking data as values.
+    """
     dates = [datetime.strptime(date, '%Y-%m-%d') for date in tracking_data]
     
-    # initialize the dictionary
     tracking_dict = {}
     for date in dates:
         year = date.year
         if year not in tracking_dict:
-            # Determine if the year is a leap year
             is_leap_year = (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
             days_in_year = 366 if is_leap_year else 365
             tracking_dict[year] = [0] * days_in_year
     
-    # update the dictionary based on periodicity
     for date in dates:
         year = date.year
         start_of_year = datetime(year, 1, 1)
