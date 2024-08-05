@@ -82,7 +82,7 @@ class Habit:
 
         Parameters:
         write_date (datetime): The date the habit was completed.
-        is_fake_tracking_data (bool): If True, mark as fake tracking data.
+        is_fake_tracking_data (bool): If True, do not update the streak.
         """
         cur = db.get_cursor()
         if not is_fake_tracking_data:
