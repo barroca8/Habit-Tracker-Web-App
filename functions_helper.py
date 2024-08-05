@@ -155,7 +155,7 @@ def generate_random_habit_tracking_dates(periodicity, created_at, streak, last_u
         dates_list = []
         current_date = created_at
         while current_date <= last_updated_at:
-            week_start = current_date
+            week_start = current_date - relativedelta(days=current_date.weekday())
             week_end = min(last_updated_at, week_start + timedelta(days=6))
             random_date = week_start + timedelta(days=random.randint(0, (week_end - week_start).days))
             dates_list.append(random_date.strftime('%Y-%m-%d'))
@@ -164,7 +164,7 @@ def generate_random_habit_tracking_dates(periodicity, created_at, streak, last_u
         dates_list = []
         current_date = created_at
         while current_date <= last_updated_at:
-            month_start = current_date
+            month_start = current_date.replace(day=1)
             next_month = month_start + relativedelta(months=1)
             month_end = min(last_updated_at, next_month - timedelta(days=1))
             random_date = month_start + timedelta(days=random.randint(0, (month_end - month_start).days))
@@ -172,13 +172,25 @@ def generate_random_habit_tracking_dates(periodicity, created_at, streak, last_u
             current_date = next_month
 
     if streak == 0:
-        dates_list = dates_list[:-1]
-    else:
-        dates_list = dates_list[-streak:]
+        if periodicity == 'D':
+            dates_list = dates_list[:-1]
+        elif periodicity == 'W':
+            dates_list = dates_list[:-7]
+        elif periodicity == 'M':
+            dates_list = dates_list[:-31]
 
-    dropout_count = int(len(dates_list) * (1 - success_rate))
-    dropout_indices = random.sample(range(len(dates_list)), dropout_count)
-    dates_list = [date for i, date in enumerate(dates_list) if i not in dropout_indices]
+    # elements that can be dropped out
+    non_streak_elements = dates_list[:-streak] if streak > 0 else dates_list
+    non_streak_elements = non_streak_elements[:-1]
+    
+    # elements that must be kept
+    streak_elements = dates_list[-streak:] if streak > 0 else []
+
+    dropout_count = int(len(non_streak_elements) * (1 - success_rate))
+    dropout_indices = random.sample(range(len(non_streak_elements)), dropout_count)
+    non_streak_elements = [date for i, date in enumerate(non_streak_elements) if i not in dropout_indices]
+
+    dates_list = non_streak_elements + streak_elements
 
     return dates_list
 
