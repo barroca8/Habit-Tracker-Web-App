@@ -166,6 +166,17 @@ class Habit:
         longest_streak = cur.fetchall()
         cur.close()
         return longest_streak
+    
+    def get_longest_overall_streak(self):
+        """
+        Get the longest overall streak. This needs to take into account the periodicity of the habit.
+        Each habit can have a different periodicity ('D', 'W', 'M'). 
+        And each streak just represents one completed period of that periodicity for that habit
+
+        Returns:
+        list: The longest overall streak.
+        """
+        pass
 
     def get_tracking_data(self):
         """

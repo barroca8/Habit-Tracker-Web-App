@@ -226,14 +226,17 @@
             const dailyResponse = await fetch('/streaks/daily');
             const weeklyResponse = await fetch('/streaks/weekly');
             const monthlyResponse = await fetch('/streaks/monthly');
+            const overallResponse = await fetch('/streaks/longest');
 
             const dailyStreak = await dailyResponse.json();
             const weeklyStreak = await weeklyResponse.json();
             const monthlyStreak = await monthlyResponse.json();
+            const overallStreak = await overallResponse.json();
 
             document.getElementById('daily-streak').textContent = dailyStreak.length > 0 ? `Longest daily streak: ${dailyStreak[0][0]} with ${dailyStreak[0][1]} days` : 'No daily streaks found';
             document.getElementById('weekly-streak').textContent = weeklyStreak.length > 0 ? `Longest weekly streak: ${weeklyStreak[0][0]} with ${weeklyStreak[0][1]} weeks` : 'No weekly streaks found';
             document.getElementById('monthly-streak').textContent = monthlyStreak.length > 0 ? `Longest monthly streak: ${monthlyStreak[0][0]} with ${monthlyStreak[0][1]} months` : 'No monthly streaks found';
+            document.getElementById('longest-overall-streak').textContent = Object.keys(overallStreak).length > 0 ? `Longest streak overall: ${overallStreak.habit}, since ${overallStreak.date}, with a streak of ${overallStreak.streak}` : 'No overall streaks found';
         }
 
         async function searchLongestStreak() {
@@ -345,6 +348,7 @@
         <p id="daily-streak"></p>
         <p id="weekly-streak"></p>
         <p id="monthly-streak"></p>
+        <p id="longest-overall-streak"></p>
     </div>
     <div>
         <h2>Search Longest Streak</h2>
