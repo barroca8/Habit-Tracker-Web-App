@@ -171,3 +171,15 @@ def get_longest_monthly_streak():
     habit = Habit()
     streak = habit.longest_monthly_streak()
     return jsonify(streak)
+
+@app.route('/streaks/longest', methods=['GET'])
+def get_longest_streak():
+    """
+    Get the longest streak.
+
+    Returns:
+    JSON: The longest streak.
+    """
+    database = Database()
+    name, date, streak = database.get_longest_active_streak()
+    return jsonify({'habit': name, 'date': date, 'streak': streak})

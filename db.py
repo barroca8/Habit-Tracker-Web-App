@@ -90,3 +90,59 @@ class Database:
         )
         self.conn.commit()
         cur.close()
+
+    def get_longest_active_streak(self):
+        """
+        Get the longest active streak.
+
+        Returns:
+        int: The longest active streak.
+        """
+        cur = self.get_cursor()
+        cur.execute(
+            """
+            WITH RankedDates AS (
+                SELECT
+                    h.id AS habit_id,
+                    h.name AS habit_name,
+                    ht.marked_date,
+                    h.streak,
+                    ROW_NUMBER() OVER (PARTITION BY h.id ORDER BY ht.marked_date DESC) AS rank
+                FROM
+                    habits h
+                LEFT JOIN
+                    habit_tracking ht ON h.id = ht.habit_id
+            ),
+            StreakDates AS (
+                SELECT
+                    habit_id,
+                    habit_name,
+                    streak,
+                    CASE
+                        WHEN streak = 0 THEN NULL
+                        ELSE (
+                            SELECT marked_date
+                            FROM RankedDates r2
+                            WHERE r2.habit_id = r1.habit_id AND r2.rank = r1.streak
+                        )
+                    END AS streak_date
+                FROM
+                    (SELECT DISTINCT habit_id, habit_name, streak FROM RankedDates) r1
+            )
+            SELECT
+                habit_name,
+                streak_date,
+                streak
+            FROM
+                StreakDates
+            WHERE
+                streak_date IS NOT NULL
+            ORDER BY
+                streak_date
+            LIMIT 1
+            """
+        )
+        name, date, streak = cur.fetchone()
+        cur.close()
+        date = date.split('T')[0]
+        return name, date, streak
