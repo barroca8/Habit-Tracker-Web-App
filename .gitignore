@@ -1,3 +1,4 @@
 habits.db
 __pycache__/
 todo
+.pytest_cache/

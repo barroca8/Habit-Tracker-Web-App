@@ -180,6 +180,5 @@ def get_longest_streak():
     Returns:
     JSON: The longest streak.
     """
-    database = Database()
-    name, date, streak = database.get_longest_active_streak()
+    name, date, streak = db.get_longest_active_streak()
     return jsonify({'habit': name, 'date': date, 'streak': streak})

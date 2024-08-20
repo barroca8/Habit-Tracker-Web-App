@@ -59,5 +59,19 @@ And your app will run on `http://127.0.0.1:5000`
 - **"Search Longest Streak" section**: In this section you can search a habit by typing its name and it will show the current streak for that habit
 - **"Tracking Calendar" section**: In this section you can pick one of your habits and you will have a visualization of its completion
 
+### 5. Testing with pytest
 
- 
+#### If you are curious about testing, a unit test file has been created that you can run directly by running `pytest` from your command line.
+
+#### The tests are the following:
+- Test the creation of a new habit
+- Test the deletion of a habit
+- Test habit completion
+- Test that a habit cannot be created if it already exists
+- Test that a habit cannot be created if the name is empty
+- Test that the default habits in the JSON file are actually created
+- Test that the habits table can be cleared
+- Test that the habit tracking data has the expected dimensions
+
+All tests are wrapped around a **setup and teardown function**, which clears the habits table before and after each test, so that the results from each test don't affect the next one.
+All tests start and end with an empty database.
