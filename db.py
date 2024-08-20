@@ -142,7 +142,10 @@ class Database:
             LIMIT 1
             """
         )
-        name, date, streak = cur.fetchone()
+        result = cur.fetchone()
+        if result is None:
+            return None, None, None
+        name, date, streak = result
         cur.close()
         date = date.split('T')[0]
         return name, date, streak
